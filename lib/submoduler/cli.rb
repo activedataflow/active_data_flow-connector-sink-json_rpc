@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require_relative 'report_command'
+require_relative 'git_status_command'
+require_relative 'push_command'
+require_relative 'git_add_command'
+require_relative 'git_commit_command'
 
 module Submoduler
   # Command line interface for submoduler tool
@@ -28,12 +32,20 @@ module Submoduler
         return 2
       end
 
-      # Parse command
-      command = parse_command(@args)
+      # Parse command and options
+      command, options = parse_command_and_options(@args)
 
       case command
       when 'report'
         ReportCommand.new(@repo_root).execute
+      when 'git-status', 'status'
+        GitStatusCommand.new(@repo_root, options).execute
+      when 'push'
+        PushCommand.new(@repo_root, options).execute
+      when 'git-add', 'add'
+        GitAddCommand.new(@repo_root, options).execute
+      when 'git-commit', 'commit'
+        GitCommitCommand.new(@repo_root, options).execute
       when nil
         show_usage
         0
@@ -51,8 +63,77 @@ module Submoduler
 
     private
 
-    def parse_command(args)
-      args.first
+    def parse_command_and_options(args)
+      return [nil, {}] if args.empty?
+      
+      command = args.first
+      options = {}
+      
+      i = 1
+      while i < args.length
+        arg = args[i]
+        
+        case arg
+        when '--dry-run'
+          options[:dry_run] = true
+        when '--verbose', '-v'
+          options[:verbose] = true
+        when '--compact'
+          options[:compact] = true
+        when '--porcelain'
+          options[:porcelain] = true
+        when '--no-color'
+          options[:no_color] = true
+        when '--force', '-f'
+          options[:force] = true
+        when '--all', '-a'
+          options[:all] = true
+        when '--update', '-u'
+          options[:update] = true
+        when '--patch', '-p'
+          options[:patch] = true
+        when '--interactive', '-i'
+          options[:interactive] = true
+        when '--intent-to-add', '-N'
+          options[:intent_to_add] = true
+        when '--ignore-removal'
+          options[:ignore_removal] = true
+        when '--amend'
+          options[:amend] = true
+        when '--allow-empty'
+          options[:allow_empty] = true
+        when '--no-verify'
+          options[:no_verify] = true
+        when '--no-parent'
+          options[:no_parent] = true
+        when '--remote'
+          options[:remote] = args[i + 1]
+          i += 1
+        when '--submodule'
+          options[:submodules] ||= []
+          options[:submodules] << args[i + 1]
+          i += 1
+        when '-m', '--message'
+          options[:message] = args[i + 1]
+          i += 1
+        when '--author'
+          options[:author] = args[i + 1]
+          i += 1
+        when '--date'
+          options[:date] = args[i + 1]
+          i += 1
+        when /^--gpg-sign(?:=(.+))?$/
+          options[:gpg_sign] = $1 || true
+        else
+          # Treat as pattern for git-add
+          options[:patterns] ||= []
+          options[:patterns] << arg
+        end
+        
+        i += 1
+      end
+      
+      [command, options]
     end
 
     def git_repository?
@@ -61,31 +142,59 @@ module Submoduler
 
     def show_usage
       puts <<~USAGE
-        Submoduler - Git Submodule Configuration Tool
+        Submoduler - Git Submodule Management Tool
 
         Usage:
           submoduler.rb <command> [options]
 
         Commands:
-          report        Generate a validation report for submodule configuration
+          report                  Validate submodule configuration
+          git-status, status      Show status across all submodules
+          push                    Push submodules and parent repository
+          git-add, add            Stage changes across submodules
+          git-commit, commit      Commit changes across submodules
 
-        Options:
-          --help, -h    Show this help message
+        Common Options:
+          --help, -h              Show this help message
+          --verbose, -v           Show detailed output
+          --dry-run               Preview without executing
+          --submodule <name>      Operate on specific submodule(s)
+
+        Status Options:
+          --compact               Show only dirty repositories
+          --porcelain             Machine-readable output
+          --no-color              Disable colored output
+
+        Push Options:
+          --remote <name>         Push to specific remote (default: origin)
+          --force, -f             Force push
+
+        Add Options:
+          --all, -a               Stage all changes
+          --update, -u            Stage tracked files only
+          --patch, -p             Interactive patch mode
+          --force, -f             Add ignored files
+          --no-parent             Don't update parent references
+
+        Commit Options:
+          -m, --message <msg>     Commit message
+          --amend                 Amend last commit
+          --all, -a               Commit all changes
+          --gpg-sign[=<key>]      Sign commits with GPG
+          --no-verify             Skip commit hooks
 
         Examples:
           submoduler.rb report
-          submoduler.rb --help
-
-        Description:
-          The 'report' command validates your git submodule configuration by:
-          1. Checking that .gitmodules file exists and is properly formatted
-          2. Verifying that configured paths exist in the filesystem
-          3. Confirming that submodule directories are properly initialized
+          submoduler.rb status --compact
+          submoduler.rb push --dry-run
+          submoduler.rb add --all
+          submoduler.rb commit -m "Update submodules"
+          submoduler.rb push --submodule core_gem/core
 
         Exit Codes:
-          0 - All checks passed or no submodules configured
-          1 - One or more validation checks failed
-          2 - Script error (not a git repo, invalid arguments, etc.)
+          0 - Success
+          1 - Validation/operation failures
+          2 - Script error (not a git repo, invalid arguments)
       USAGE
     end
   end
