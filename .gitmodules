@@ -1,12 +1,12 @@
-[submodule "core/core"]
+[submodule "core_gem/core"]
 	path = submodules/core/core
 	url = https://github.com/magenticmarketactualskill/active_dataflow-core-core.git
-[submodule "runtime/heartbeat_app"]
+[submodule "runtime_gems/rails_heartbeat_app"]
 	path = submodules/runtime/heartbeat_app
 	url = https://github.com/magenticmarketactualskill/active_dataflow-runtime-heartbeat_app.git
-[submodule "connector/active_record"]
+[submodule "connector_gems/active_record"]
 	path = submodules/connector/active_record
 	url = https://github.com/magenticmarketactualskill/active_dataflow-connector-active_record.git
-[submodule "examples/heartbeat_ar2ar"]
+[submodule "example_apps/heartbeat_ar2ar"]
 	path = examples/heartbeat_ar2ar
 	url = https://github.com/magenticmarketactualskill/active_dataflow_examples/heartbeat_ar2ar.git

@@ -1,0 +1,8 @@
+# Ignore all files in submodules directory
+# Only git submodules defined in .gitmodules should be tracked
+submodules/**/*
+
+# But don't ignore the submodule directories themselves
+!submodules/
+!submodules/*/
+!submodules/*/*/
