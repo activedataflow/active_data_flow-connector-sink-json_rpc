@@ -17,7 +17,7 @@ module Submoduler
     protected
 
     def parser
-      @parser ||= GitModulesParser.new(@repo_root)
+      @parser ||= SubmodulerIniParser.new(@repo_root)
     end
 
     def submodule_entries

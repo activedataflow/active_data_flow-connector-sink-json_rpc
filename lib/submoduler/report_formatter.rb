@@ -26,6 +26,10 @@ module Submoduler
       output << ""
       output << format_initialization_section
       output << ""
+      output << format_dirty_section
+      output << ""
+      output << format_unpushed_section
+      output << ""
       output << format_summary
       output.join("\n")
     end
@@ -45,7 +49,7 @@ module Submoduler
       output = ["📋 Submodule Configuration Check"]
       
       if @submodule_count > 0
-        output << "  #{colorize('✓', :green)} Found .gitmodules file"
+        output << "  #{colorize('✓', :green)} Found .submoduler.ini files"
         output << "  #{colorize('✓', :green)} Parsed #{@submodule_count} submodule #{@submodule_count == 1 ? 'entry' : 'entries'}"
       else
         output << "  #{colorize('✗', :red)} No submodules configured"
@@ -62,6 +66,16 @@ module Submoduler
     def format_initialization_section
       init_results = @results.select { |r| r.check_type == :initialization }
       format_section("🔧 Initialization Check", init_results)
+    end
+
+    def format_dirty_section
+      dirty_results = @results.select { |r| r.check_type == :dirty }
+      format_section("🔍 Clean Status Check", dirty_results)
+    end
+
+    def format_unpushed_section
+      unpushed_results = @results.select { |r| r.check_type == :unpushed }
+      format_section("📤 Push Status Check", unpushed_results)
     end
 
     def format_section(title, results)

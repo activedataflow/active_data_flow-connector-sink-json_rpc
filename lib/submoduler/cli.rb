@@ -5,6 +5,10 @@ require_relative 'git_status_command'
 require_relative 'push_command'
 require_relative 'git_add_command'
 require_relative 'git_commit_command'
+require_relative 'version_command'
+require_relative 'test_command'
+require_relative 'release_command'
+require_relative 'bundle_command'
 
 module Submoduler
   # Command line interface for submoduler tool
@@ -46,6 +50,14 @@ module Submoduler
         GitAddCommand.new(@repo_root, options).execute
       when 'git-commit', 'commit'
         GitCommitCommand.new(@repo_root, options).execute
+      when 'version'
+        VersionCommand.new(@repo_root, options).execute
+      when 'test'
+        TestCommand.new(@repo_root, options).execute
+      when 'release'
+        ReleaseCommand.new(@repo_root, options).execute
+      when 'bundle'
+        BundleCommand.new(@repo_root, options).execute
       when nil
         show_usage
         0
@@ -76,6 +88,8 @@ module Submoduler
         case arg
         when '--dry-run'
           options[:dry_run] = true
+        when '--sync'
+          options[:sync] = true
         when '--verbose', '-v'
           options[:verbose] = true
         when '--compact'
@@ -153,6 +167,10 @@ module Submoduler
           push                    Push submodules and parent repository
           git-add, add            Stage changes across submodules
           git-commit, commit      Commit changes across submodules
+          version                 Manage gem versions across submodules
+          test                    Run tests across submodules
+          release                 Release with version sync, test, and push
+          bundle                  Generate Gemfiles and run bundle install
 
         Common Options:
           --help, -h              Show this help message
@@ -183,6 +201,24 @@ module Submoduler
           --gpg-sign[=<key>]      Sign commits with GPG
           --no-verify             Skip commit hooks
 
+        Version Options:
+          --sync                  Synchronize versions across submodules
+          --dry-run               Preview changes without applying
+          --submodule <name>      Check specific submodule(s)
+
+        Test Options:
+          --verbose, -v           Show detailed test output
+          --submodule <name>      Test specific submodule(s)
+
+        Release Options:
+          -m, --message <msg>     Release message (required)
+          --dry-run               Preview release workflow
+          --submodule <name>      Release specific submodule(s)
+
+        Bundle Options:
+          --verbose, -v           Show detailed bundle output
+          --submodule <name>      Bundle specific submodule(s)
+
         Examples:
           submoduler.rb report
           submoduler.rb status --compact
@@ -190,6 +226,16 @@ module Submoduler
           submoduler.rb add --all
           submoduler.rb commit -m "Update submodules"
           submoduler.rb push --submodule core_gem/core
+          submoduler.rb version
+          submoduler.rb version --sync
+          submoduler.rb version --sync --dry-run
+          submoduler.rb test
+          submoduler.rb test --verbose
+          submoduler.rb test --submodule core/core
+          submoduler.rb release -m "Release v0.2.0"
+          submoduler.rb release -m "Release v0.2.0" --dry-run
+          submoduler.rb bundle
+          submoduler.rb bundle --verbose
 
         Exit Codes:
           0 - Success

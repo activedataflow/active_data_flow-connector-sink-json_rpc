@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require_relative 'git_modules_parser'
+require_relative 'submoduler_ini_parser'
 require_relative 'path_validator'
 require_relative 'init_validator'
+require_relative 'dirty_validator'
+require_relative 'unpushed_validator'
 require_relative 'report_formatter'
 
 module Submoduler
@@ -13,11 +15,12 @@ module Submoduler
     end
 
     def execute
-      parser = GitModulesParser.new(@repo_root)
+      parser = SubmodulerIniParser.new(@repo_root)
 
-      # Check if .gitmodules exists
+      # Check if .submoduler.ini files exist
       unless parser.exists?
-        puts "No .gitmodules file found. No submodules configured."
+        puts "No .submoduler.ini files found. No submodules configured."
+        puts "Run 'submoduler.rb migrate' to generate from .gitmodules"
         return 0
       end
 
@@ -56,6 +59,14 @@ module Submoduler
       # Initialization validation
       init_validator = InitValidator.new(@repo_root, entries)
       results.concat(init_validator.validate)
+
+      # Dirty status validation
+      dirty_validator = DirtyValidator.new(@repo_root, entries)
+      results.concat(dirty_validator.validate)
+
+      # Unpushed commits validation
+      unpushed_validator = UnpushedValidator.new(@repo_root, entries)
+      results.concat(unpushed_validator.validate)
 
       results
     end

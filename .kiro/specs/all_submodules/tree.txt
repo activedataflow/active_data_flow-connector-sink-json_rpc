@@ -1,0 +1,164 @@
+submodules
+├── connector
+│   ├── active_record
+│   │   ├── bin
+│   │   │   ├── generate_gemfile.rb
+│   │   │   └── generate_local_active_support_symlink.rb
+│   │   ├── Gemfile
+│   │   ├── Gemfile.lock
+│   │   ├── lib
+│   │   │   ├── active_data_flow
+│   │   │   │   ├── sink
+│   │   │   │   │   └── active_record.rb
+│   │   │   │   └── source
+│   │   │   │       └── active_record.rb
+│   │   │   └── active_data_flow-active_record.rb
+│   │   ├── local
+│   │   │   └── active_data_flow -> /Users/ericlaquer/Documents/GitHub/active_data_flow/submodules/core/core/lib/active_data_flow
+│   │   ├── README.md
+│   │   └── spec
+│   │       ├── active_data_flow
+│   │       │   ├── sink
+│   │       │   │   └── active_record_spec.rb
+│   │       │   └── source
+│   │       │       └── active_record_spec.rb
+│   │       ├── integration
+│   │       │   └── source_sink_integration_spec.rb
+│   │       ├── spec_helper.rb
+│   │       └── support
+│   │           └── active_data_flow_stub.rb
+│   ├── cache
+│   │   └── requirements.md
+│   ├── file
+│   │   └── requirements.md
+│   ├── iceberg
+│   │   └── requirements.md
+│   └── rafka
+│       └── requirements.md
+├── core
+│   └── core
+│       ├── active_data_flow-core-core-0.0.1.gem
+│       ├── active_data_flow.gemspec
+│       ├── bin
+│       │   ├── Gemfile_preamble.rb
+│       │   ├── Gemfile.erb
+│       │   └── generate_gemfile.rb
+│       ├── CHANGELOG.md
+│       ├── examples
+│       │   └── basic_usage.rb
+│       ├── Gemfile
+│       ├── IMPLEMENTATION_SUMMARY.md
+│       ├── lib
+│       │   ├── active_data_flow
+│       │   │   ├── configuration.rb
+│       │   │   ├── data_flow.rb
+│       │   │   ├── errors.rb
+│       │   │   ├── logger.rb
+│       │   │   ├── message.rb
+│       │   │   ├── registry.rb
+│       │   │   ├── sink.rb
+│       │   │   ├── source.rb
+│       │   │   ├── test_helpers.rb
+│       │   │   └── version.rb
+│       │   └── active_data_flow.rb
+│       ├── LICENSE.txt
+│       ├── README.md
+│       └── spec
+│           ├── active_data_flow
+│           │   ├── configuration_spec.rb
+│           │   ├── data_flow_spec.rb
+│           │   ├── message_spec.rb
+│           │   ├── registry_spec.rb
+│           │   ├── sink_spec.rb
+│           │   └── source_spec.rb
+│           ├── active_data_flow_spec.rb
+│           ├── examples.txt
+│           └── spec_helper.rb
+├── runtime
+│   ├── aws_lambda
+│   │   └── requirements.md
+│   ├── flink
+│   │   └── requirements.md
+│   ├── heartbeat_app
+│   │   ├── active_data_flow -> ../..
+│   │   ├── active_data_flow-rails_heartbeat_app.gemspec
+│   │   ├── app
+│   │   │   ├── controllers
+│   │   │   │   └── active_data_flow
+│   │   │   │       └── rails_heartbeat_app
+│   │   │   │           └── data_flows_controller.rb
+│   │   │   ├── models
+│   │   │   │   └── active_data_flow
+│   │   │   │       └── rails_heartbeat_app
+│   │   │   │           ├── data_flow_run.rb
+│   │   │   │           └── data_flow.rb
+│   │   │   └── services
+│   │   │       └── active_data_flow
+│   │   │           └── rails_heartbeat_app
+│   │   │               └── flow_executor.rb
+│   │   ├── CHANGELOG.md
+│   │   ├── config
+│   │   │   └── routes.rb
+│   │   ├── db
+│   │   │   └── migrate
+│   │   │       ├── 20241112000001_create_data_flows.rb
+│   │   │       └── 20241112000002_create_data_flow_runs.rb
+│   │   ├── Gemfile
+│   │   ├── IMPLEMENTATION_SUMMARY.md
+│   │   ├── lib
+│   │   │   ├── active_data_flow
+│   │   │   │   ├── rails_heartbeat_app
+│   │   │   │   │   ├── configuration.rb
+│   │   │   │   │   ├── engine.rb
+│   │   │   │   │   └── version.rb
+│   │   │   │   └── rails_heartbeat_app.rb
+│   │   │   └── generators
+│   │   │       └── active_data_flow
+│   │   │           └── rails_heartbeat_app
+│   │   │               ├── install_generator.rb
+│   │   │               └── templates
+│   │   │                   ├── create_data_flow_runs.rb
+│   │   │                   ├── create_data_flows.rb
+│   │   │                   └── initializer.rb
+│   │   ├── LICENSE.txt
+│   │   ├── QUICKSTART.md
+│   │   ├── Rakefile
+│   │   ├── README.md
+│   │   ├── requirements.md
+│   │   └── spec
+│   │       ├── controllers
+│   │       │   └── active_data_flow
+│   │       │       └── rails_heartbeat_app
+│   │       │           └── data_flows_controller_spec.rb
+│   │       ├── dummy
+│   │       │   ├── config
+│   │       │   │   ├── application.rb
+│   │       │   │   ├── boot.rb
+│   │       │   │   ├── database.yml
+│   │       │   │   ├── environment.rb
+│   │       │   │   └── routes.rb
+│   │       │   └── db
+│   │       │       └── schema.rb
+│   │       ├── integration
+│   │       │   └── active_data_flow
+│   │       │       └── rails_heartbeat_app
+│   │       │           └── heartbeat_integration_spec.rb
+│   │       ├── models
+│   │       │   └── active_data_flow
+│   │       │       └── rails_heartbeat_app
+│   │       │           ├── data_flow_run_spec.rb
+│   │       │           └── data_flow_spec.rb
+│   │       ├── rails_helper.rb
+│   │       ├── services
+│   │       │   └── active_data_flow
+│   │       │       └── rails_heartbeat_app
+│   │       │           └── flow_executor_spec.rb
+│   │       ├── spec_helper.rb
+│   │       └── support
+│   │           └── database_cleaner.rb
+│   ├── heartbeat_job
+│   │   └── requirements.md
+│   └── spin3
+│       └── requirements.md
+└── source_support
+    └── requirements.md
