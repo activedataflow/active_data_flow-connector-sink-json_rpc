@@ -2,7 +2,7 @@ add .
 # Implementation Plan
 
 - [ ] 1. Implement core message types
-  - [-] 1.1 Implement Message::Untyped class with data accessors
+  - [x] 1.1 Implement Message::Untyped class with data accessors
     - Create `lib/message/untyped.rb` with initialization and data access methods
     - _Requirements: 2.2, 2.3, 2.5_
   - [ ] 1.2 Implement Message::Typed class with schema validation
