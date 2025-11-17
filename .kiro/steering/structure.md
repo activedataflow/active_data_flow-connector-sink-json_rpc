@@ -19,15 +19,11 @@ It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models,  c
 │   │   └── source/
 │   ├── message/             # Message type placeholders
 │   └── runtime/             # Runtime placeholder modules
-├── test/                    # Integration tests for submoduler tool
-├── bin/                     # Executable scripts (submoduler)
+├── test/                    # RSpec tests
+├── bin/                     # Executable scripts
 └── vendor/                  # Vendored dependencies
 ```
 
-
-## Submoduler Structure
-
-Submoduler gem provides file structure and automation of SubGem and SubModule components.
 
 ## SubGems
 These gems are stored in the same git repo as the active_data_flow. This provides 'turnkey' installation and use for simple use-cases.
@@ -44,20 +40,17 @@ active_data_flow/
 
 ## SubModule
 
-Each gem is developed as a separate git submodule under `hide/submodules/`:
+Each gem is developed as a separate git submodule under `/submodules`:
 
-- `hide/submodules/core/core/` - Core gem with abstract interfaces
-- `hide/submodules/runtime/` - Runtime implementations
-- `hide/submodules/connector/` - Connector implementations
 - `examples/` - Example applications demonstrating usage
 
 ## Code Organization Patterns
 
 ### Module Naming
 
-- Core module: `ActiveDataFlow`
-- Connectors: `ActiveDataFlow::Connector::Source::*` and `ActiveDataFlow::Connector::Sink::*`
-- Runtimes: 'ActiveDataFlow::Runtime::*'
+- Core module: `ActiveDataflow`
+- Connectors: `ActiveDataflow::Connector::Source::*` and `ActiveDataflow::Connector::Sink::*`
+- Runtimes: `ActiveDataflow::Runtime::*`
 
 ### Gem Naming
 
@@ -71,8 +64,8 @@ Each gem is developed as a separate git submodule under `hide/submodules/`:
 
 - **docs/**: Contains requirements, design documents, and architecture specs
 - **lib/**: Placeholder modules for the monorepo structure
-- **test/**: Minitest-based tests for the submoduler validation tool
-- **bin/**: Command-line tools (submoduler.rb)
+- **test/**: RSpec-based tests
+- **bin/**: Command-line tools
 - **.kiro/specs/**: Detailed requirements and specifications for each component
 
 ## Development Workflow
