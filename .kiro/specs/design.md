@@ -119,6 +119,7 @@ See: Requirement 7
 - Routes for heartbeat endpoints
 
 See: Requirement 6
+See: `.kiro/steering/rails.rb` for detailed Rails engine implementation
 
 ## Data Models
 
@@ -128,6 +129,8 @@ See individual subgem design documents for detailed schemas:
 - `hide/subgems/runtime/heartbeat/.kiro/specs/design.md` - Heartbeat runtime models
 - `hide/subgems/connector/source/active_record/.kiro/specs/design.md` - ActiveRecord source models
 - `hide/subgems/connector/sink/active_record/.kiro/specs/design.md` - ActiveRecord sink models
+
+See: `.kiro/steering/rails.rb` for Rails engine models (DataFlow, DataFlowRun)
 
 ## Module Organization
 
