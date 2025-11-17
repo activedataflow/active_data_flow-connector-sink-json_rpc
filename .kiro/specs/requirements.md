@@ -9,37 +9,6 @@ The `active_data_flow` gem is implementation-independent and provides:
 - Flink-inspired source architecture with split enumeration
 - DataFlow orchestration patterns
 
-**DataFlow Runtime Implementations** (separate gems):
-- `active_data_flow-rails_heartbeat_app` - Runs DataFlows in Rails application process
-- `active_data_flow-rails_heartbeat_job` - Runs DataFlows as ActiveJob background jobs
-- `active_data_flow-aws_lambda` - Runs DataFlows as AWS Lambda functions
-- `active_data_flow-flink` - Runs DataFlows in Apache Flink runtime
-
-**Source/Sink Implementations** (separate gems):
-- `active_data_flow-rafka` - Kafka-compatible API backed by Redis streams
-- `active_data_flow-active_record` - Rails RDBMS integration
-- `active_data_flow-iceberg` - Apache Iceberg table format support
-- `active_data_flow-file` - Local and remote file system support
-
-## Glossary
-
-- **ActiveDataFlow**: The core Ruby gem providing abstract interfaces and base classes
-- **DataFlow**: An orchestrator class that coordinates data movement and transformation
-- **Source**: An abstraction for reading data from external systems (files, streams, databases)
-- **Sink**: An abstraction for writing data to external systems
-- **Split**: A portion of a data source that can be processed independently
-- **SplitEnumerator**: A coordinator that discovers splits and assigns them to readers
-- **SourceReader**: A worker that reads data from assigned splits
-- **Runtime**: The execution environment for DataFlows (Rails app, ActiveJob, Lambda, Flink)
-- **Heartbeat**: A periodic trigger mechanism for scheduled DataFlow execution
-- **Boundedness**: Whether a source is bounded (batch) or unbounded (streaming)
-- **Rafka**: A Kafka-compatible API backed by Redis streams
-- **Iceberg**: Apache Iceberg open table format for large analytic datasets
-
-## Requirements
-
-### Requirement 1: Source/Sink Abstraction Pattern
-
 **User Story:** As a developer, I want pluggable source and sink abstractions, so that I can decouple my DataFlow logic from specific external systems and easily reconfigure pipelines.
 
 #### Acceptance Criteria

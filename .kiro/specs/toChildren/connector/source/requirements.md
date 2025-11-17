@@ -1,0 +1,1 @@
+ActiveDataFlow Connector Sources should extend ActiveDataflow::Connection::Sources

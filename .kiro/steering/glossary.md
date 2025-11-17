@@ -1,0 +1,1 @@
+Always use/update the .kiro/glossary.md files. Never repeat that content in other files. 
