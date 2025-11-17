@@ -1,0 +1,1 @@
+Ignore files in the submodules folder and everthing in it.

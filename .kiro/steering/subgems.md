@@ -1,0 +1,1 @@
+Ignore files in the subgems folder and everthing in it.
