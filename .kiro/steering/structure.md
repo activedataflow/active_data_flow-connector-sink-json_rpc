@@ -2,10 +2,10 @@
 
 ## Repository Organization
 
-This is a monorepo containing specifications and submodules for the ActiveDataFlow gem suite.
+This is a monorepo containing the ActiveDataFlow gem suite with integrated subgems.
 Active Dataflow gem defines common interfaces required for interoperability with plugin connectors and runtimes.
 
-It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models,  controllers, and views in the context of complex existing RAILS applications.
+It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models, controllers, and views in the context of complex existing RAILS applications.
 ```
 /
 ├── .kiro/                   # Kiro configuration and specs
@@ -25,8 +25,9 @@ It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models,  c
 ```
 
 
-## SubGems
-These gems are stored in the same git repo as the active_data_flow. This provides 'turnkey' installation and use for simple use-cases.
+## SubGems (In-Repo Components)
+
+Subgems are part of the active_data_flow repository, stored in the `subgems/` directory. These provide 'turnkey' installation and use for common use-cases. Each subgem is a complete gem with its own gemspec, but managed within the same repository.
 
 Example of SubGem active_data_flow-connector-source-active_record:
 
@@ -36,13 +37,24 @@ active_data_flow/
     └── connector/
         └── source/
             └── active_record/    # connector source active_record implementation GEM
+                ├── lib/
+                ├── spec/
+                ├── .kiro/
+                ├── active_data_flow-connector-source-active_record.gemspec
+                └── README.md
 ```
 
-## SubModule
+**Key SubGems:**
+- `subgems/connector/source/active_record/` - ActiveRecord source connector
+- `subgems/connector/sink/active_record/` - ActiveRecord sink connector
+- `subgems/runtime/heartbeat/` - Rails heartbeat runtime
 
-Each gem is developed as a separate git submodule under `/submodules`:
+## SubModules (External Repos)
 
-- `examples/` - Example applications demonstrating usage
+Some components are developed as separate git submodules under `/submodules/` when they need independent repository management:
+
+- `submodules/` - Components managed in separate repositories
+- `examples/` - Example applications demonstrating usage (may be submodules)
 
 ## Code Organization Patterns
 
@@ -70,8 +82,10 @@ Each gem is developed as a separate git submodule under `/submodules`:
 
 ## Development Workflow
 
-1. Core gem establishes interfaces
-2. Runtime gems implement execution environments
-3. Connector gems implement data sources/sinks
-4. Example apps demonstrate integration
-5. Each component is independently versioned as a gem
+1. **Core gem** (`lib/`) establishes abstract interfaces
+2. **Subgems** (`subgems/`) provide concrete implementations:
+   - Runtime gems implement execution environments
+   - Connector gems implement data sources/sinks
+3. **Rails engine** (`app/`) provides management interface
+4. **Example apps** demonstrate integration
+5. Each subgem can be independently versioned and published as a gem

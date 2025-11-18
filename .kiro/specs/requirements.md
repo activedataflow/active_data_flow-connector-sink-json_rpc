@@ -108,12 +108,12 @@ The `active_data_flow` gem provides:
 
 ### Requirement 8: Modular Gem Architecture
 
-**User Story:** As a gem maintainer, I want a modular architecture with subgems and submodules, so that components can be developed and versioned independently.
+**User Story:** As a gem maintainer, I want a modular architecture with subgems, so that components can be developed and versioned independently while remaining part of the same repository.
 
 #### Acceptance Criteria
 
 1. THE ActiveDataflow core gem SHALL define abstract base classes in `lib/` as placeholders
-2. THE ActiveDataflow SHALL organize concrete implementations in `subgems/` directory
-3. THE ActiveDataflow SHALL support external implementations in `submodules/` directory
-4. THE ActiveDataflow SHALL allow subgems to be managed in the same repository
-5. THE ActiveDataflow SHALL allow submodules to be managed in separate repositories
+2. THE ActiveDataflow SHALL organize concrete implementations in `subgems/` directory as part of the same repository
+3. THE ActiveDataflow SHALL allow each subgem to have its own gemspec for independent versioning
+4. THE ActiveDataflow SHALL allow subgems to be published as separate gems while being developed in the monorepo
+5. THE ActiveDataflow SHALL maintain a clear separation between core abstractions and subgem implementations

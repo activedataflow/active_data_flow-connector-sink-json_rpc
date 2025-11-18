@@ -29,14 +29,10 @@ See: `.kiro/glossary.md` for term definitions
 ├─────────────────────────────────────────────────────────┤
 │              Concrete Implementations                    │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │  Subgems (in repo)                                 │ │
+│  │  Subgems (in-repo, part of active_data_flow)      │ │
 │  │  - connector/source/active_record                  │ │
 │  │  - connector/sink/active_record                    │ │
 │  │  - runtime/heartbeat                               │ │
-│  └────────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────────┐ │
-│  │  Submodules (external repos)                       │ │
-│  │  - core/core (abstract interfaces)                │ │
 │  └────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -136,18 +132,23 @@ See: `.kiro/steering/rails.rb` for Rails engine models (DataFlow, DataFlowRun)
 
 ### Monorepo Structure
 
+The active_data_flow repository contains both core abstractions and concrete implementations:
+
 ```
 active_data_flow/
-├── lib/                    # Placeholder modules (core abstractions)
-└── subgems/                # In-repo implementations
+├── lib/                    # Core abstractions (placeholder modules)
+├── app/                    # Rails engine (controllers, models, services)
+└── subgems/                # Concrete implementations (part of this repo)
     ├── connector/
     │   ├── source/
-    │   │   └── active_record/
+    │   │   └── active_record/    # Full gem with gemspec
     │   └── sink/
-    │       └── active_record/
+    │       └── active_record/    # Full gem with gemspec
     └── runtime/
-        └── heartbeat/
+        └── heartbeat/            # Full gem with gemspec
 ```
+
+Each subgem is a complete gem with its own gemspec, tests, and documentation, but developed and versioned within the active_data_flow repository.
 
 See: `.kiro/steering/structure.md` for detailed structure
 See: Requirement 8
