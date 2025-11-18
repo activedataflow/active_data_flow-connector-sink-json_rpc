@@ -1,1 +1,1 @@
-Ignore files in the subgems folder and everthing in it.
+Subgems package functiionality in the ruby gem library format.

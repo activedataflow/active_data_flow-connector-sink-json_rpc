@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Submoduler child gem
-gem 'submoduler_child', git: 'https://github.com/magenticmarketactualskill/submoduler-core-submoduler_child.git'
+gem 'submoduler-core-submoduler_child', git: 'https://github.com/magenticmarketactualskill/submoduler-core-submoduler_child.git'
 
 # Development dependencies
 group :development, :test do
