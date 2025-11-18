@@ -1,0 +1,1 @@
+../../../../.kiro/steering/design_gem.md
