@@ -1,0 +1,1 @@
+../../../../.kiro/steering/submoduler_child.md
