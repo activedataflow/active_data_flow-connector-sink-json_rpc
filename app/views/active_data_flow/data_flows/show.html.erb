@@ -1,0 +1,18 @@
+<h2><%= @data_flow&.name %></h2>
+
+<dl>
+  <dt>Source Type:</dt>
+  <dd><%= @data_flow&.source_type %></dd>
+  
+  <dt>Sink Type:</dt>
+  <dd><%= @data_flow&.sink_type %></dd>
+  
+  <dt>Status:</dt>
+  <dd><%= @data_flow&.status %></dd>
+  
+  <dt>Last Run:</dt>
+  <dd><%= @data_flow&.last_run_at %></dd>
+</dl>
+
+<%= button_to "Trigger", trigger_active_data_flow_data_flow_path(@data_flow), method: :post %>
+<%= link_to "Back", active_data_flow.data_flows_path %>

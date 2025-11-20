@@ -1,0 +1,26 @@
+<h2>Data Flows</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Source</th>
+      <th>Sink</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @data_flows&.each do |data_flow| %>
+      <tr>
+        <td><%= link_to data_flow.name, active_data_flow.data_flow_path(data_flow) %></td>
+        <td><%= data_flow.source_type %></td>
+        <td><%= data_flow.sink_type %></td>
+        <td><%= data_flow.status %></td>
+        <td>
+          <%= button_to "Trigger", trigger_active_data_flow_data_flow_path(data_flow), method: :post %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

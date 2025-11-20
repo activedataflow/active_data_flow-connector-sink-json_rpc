@@ -1,0 +1,16 @@
+===============================================================================
+
+ActiveDataFlow has been installed!
+
+Next steps:
+
+1. Run migrations:
+   rails active_data_flow:install:migrations
+   rails db:migrate
+
+2. The engine is mounted at /active_data_flow
+   Visit http://localhost:3000/active_data_flow to access the dashboard
+
+3. Configure your data flows in config/initializers/active_data_flow.rb
+
+===============================================================================
