@@ -5,14 +5,14 @@ When designing gems in the ActiveDataFlow suite:
 ## Structure
 
 - **Core gem** (`active_data_flow`): Placeholder modules in `lib/`, Rails engine integration
-- **Subgems** (in `subgems/`): Concrete implementations managed in same repo
+- **Submodules** (in `submodules/`): Concrete implementations managed as separate git repos
 
 ## Gem Organization
 
-Each subgem follows this structure:
+Each submodule follows this structure:
 
 ```
-subgems/component/type/name/
+submodules/active_data_flow-component-type-name/
 ├── lib/
 │   └── active_data_flow/
 │       └── component/
@@ -43,14 +43,14 @@ subgems/component/type/name/
 ## Design Principles
 
 1. **Single Responsibility** - Each gem does one thing well
-2. **Dependency Direction** - Subgems depend on core, never the reverse
+2. **Dependency Direction** - Submodules depend on core, never the reverse
 3. **Configuration** - Accept configuration hashes, validate on initialization
 4. **Error Handling** - Graceful failures with helpful error messages
 5. **Testing** - RSpec tests for all public interfaces
 
 ## Gemspec Requirements
 
-Each subgem gemspec should:
+Each submodule gemspec should:
 - Depend on the core `active_data_flow` gem
 - Specify Ruby version (2.7+)
 - Include development dependencies (rspec, bundler)

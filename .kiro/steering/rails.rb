@@ -71,14 +71,14 @@ app/
 
 ## Engine Configuration
 
-The engine is defined in `hide/subgems/runtime/heartbeat/lib/active_data_flow/rails_heartbeat_app/engine.rb`:
+The engine is defined in `submodules/active_data_flow-runtime-heartbeat/lib/active_data_flow/rails_heartbeat_app/engine.rb`:
 - Isolated namespace: `ActiveDataFlow::RailsHeartbeatApp`
 - Test framework: RSpec
 - Eager loads: models, controllers, services
 
 ## Routes
 
-Defined in `hide/subgems/runtime/heartbeat/config/routes.rb`:
+Defined in `submodules/active_data_flow-runtime-heartbeat/config/routes.rb`:
 ```ruby
 post "/data_flows/heartbeat", to: "data_flows#heartbeat", as: :heartbeat
 ```

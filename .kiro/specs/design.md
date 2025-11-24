@@ -29,7 +29,7 @@ See: `.kiro/glossary.md` for term definitions
 ├─────────────────────────────────────────────────────────┤
 │              Concrete Implementations                    │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │  Subgems (in-repo, part of active_data_flow)      │ │
+│  │  Submodules (separate git repos)                  │ │
 │  │  - connector/source/active_record                  │ │
 │  │  - connector/sink/active_record                    │ │
 │  │  - runtime/heartbeat                               │ │
@@ -121,10 +121,10 @@ See: `.kiro/steering/rails.rb` for detailed Rails engine implementation
 
 ### Database Schema
 
-See individual subgem design documents for detailed schemas:
-- `hide/subgems/runtime/heartbeat/.kiro/specs/design.md` - Heartbeat runtime models
-- `hide/subgems/connector/source/active_record/.kiro/specs/design.md` - ActiveRecord source models
-- `hide/subgems/connector/sink/active_record/.kiro/specs/design.md` - ActiveRecord sink models
+See individual submodule design documents for detailed schemas:
+- `submodules/active_data_flow-runtime-heartbeat/.kiro/specs/design.md` - Heartbeat runtime models
+- `submodules/active_data_flow-connector-source-active_record/.kiro/specs/design.md` - ActiveRecord source models
+- `submodules/active_data_flow-connector-sink-active_record/.kiro/specs/design.md` - ActiveRecord sink models
 
 See: `.kiro/steering/rails.rb` for Rails engine models (DataFlow, DataFlowRun)
 
@@ -138,17 +138,13 @@ The active_data_flow repository contains both core abstractions and concrete imp
 active_data_flow/
 ├── lib/                    # Core abstractions (placeholder modules)
 ├── app/                    # Rails engine (controllers, models, services)
-└── subgems/                # Concrete implementations (part of this repo)
-    ├── connector/
-    │   ├── source/
-    │   │   └── active_record/    # Full gem with gemspec
-    │   └── sink/
-    │       └── active_record/    # Full gem with gemspec
-    └── runtime/
-        └── heartbeat/            # Full gem with gemspec
+└── submodules/             # Concrete implementations (separate git repos)
+    ├── active_data_flow-connector-source-active_record/    # Full gem with gemspec
+    ├── active_data_flow-connector-sink-active_record/      # Full gem with gemspec
+    └── active_data_flow-runtime-heartbeat/                 # Full gem with gemspec
 ```
 
-Each subgem is a complete gem with its own gemspec, tests, and documentation, but developed and versioned within the active_data_flow repository.
+Each submodule is a complete gem with its own gemspec, tests, and documentation, managed as a separate git repository but linked into the active_data_flow repository.
 
 See: `.kiro/steering/structure.md` for detailed structure
 See: Requirement 8
@@ -181,7 +177,7 @@ See individual subgem design documents for specific test strategies.
 ### Design Principles
 
 1. **DRY**: Reference existing documents rather than duplicating content
-2. **Modularity**: Separate concerns into subgems and submodules
+2. **Modularity**: Separate concerns into independent submodules
 3. **Rails Conventions**: Follow Rails patterns for engine integration
 4. **Extensibility**: Allow custom sources, sinks, and runtimes
 

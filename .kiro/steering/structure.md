@@ -2,7 +2,7 @@
 
 ## Repository Organization
 
-This is a monorepo containing the ActiveDataFlow gem suite with integrated subgems.
+This is a monorepo containing the ActiveDataFlow gem suite with integrated submodules.
 Active Dataflow gem defines common interfaces required for interoperability with plugin connectors and runtimes.
 
 It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models, controllers, and views in the context of complex existing RAILS applications.
@@ -11,8 +11,7 @@ It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models, co
 ├── .kiro/                   # Kiro configuration and specs
 ├── docs/                    # Documentation and design documents
 ├── examples/                # Example applications (as submodules)
-├── subgems/                 # Gems implementing Components managed in Active Dataflow repo
-├── submodules/              # Gems implementing Components managed in other repos
+├── submodules/              # Component gems managed as git submodules
 ├── lib/                     # Placeholder module definitions
 │   ├── connector/           # Connector placeholder modules
 │   │   ├── sink/
@@ -25,36 +24,28 @@ It also implements a RAILS ENGINE to cleanly handle DataFlow-Specific models, co
 ```
 
 
-## SubGems (In-Repo Components)
+## Submodules (Component Gems)
 
-Subgems are part of the active_data_flow repository, stored in the `subgems/` directory. These provide 'turnkey' installation and use for common use-cases. Each subgem is a complete gem with its own gemspec, but managed within the same repository.
+All component implementations are managed as git submodules in the `submodules/` directory. These provide 'turnkey' installation and use for common use-cases. Each submodule is a complete gem with its own gemspec, managed in a separate git repository.
 
-Example of SubGem active_data_flow-connector-source-active_record:
+Example of submodule active_data_flow-connector-source-active_record:
 
 ```
 active_data_flow/
-└── subgems/
-    └── connector/
-        └── source/
-            └── active_record/    # connector source active_record implementation GEM
-                ├── lib/
-                ├── spec/
-                ├── .kiro/
-                ├── active_data_flow-connector-source-active_record.gemspec
-                └── README.md
+└── submodules/
+    └── active_data_flow-connector-source-active_record/    # connector source active_record implementation GEM
+        ├── lib/
+        ├── spec/
+        ├── .kiro/
+        ├── active_data_flow-connector-source-active_record.gemspec
+        └── README.md
 ```
 
-**Key SubGems:**
-- `subgems/connector/source/active_record/` - ActiveRecord source connector
-- `subgems/connector/sink/active_record/` - ActiveRecord sink connector
-- `subgems/runtime/heartbeat/` - Rails heartbeat runtime
-
-## SubModules (External Repos)
-
-Some components are developed as separate git submodules under `/submodules/` when they need independent repository management:
-
-- `submodules/` - Components managed in separate repositories
-- `examples/` - Example applications demonstrating usage (may be submodules)
+**Key Submodules:**
+- `submodules/active_data_flow-connector-source-active_record/` - ActiveRecord source connector
+- `submodules/active_data_flow-connector-sink-active_record/` - ActiveRecord sink connector
+- `submodules/active_data_flow-runtime-heartbeat/` - Rails heartbeat runtime
+- `submodules/examples/rails8-demo/` - Example Rails 8 application
 
 ## Code Organization Patterns
 
@@ -83,9 +74,9 @@ Some components are developed as separate git submodules under `/submodules/` wh
 ## Development Workflow
 
 1. **Core gem** (`lib/`) establishes abstract interfaces
-2. **Subgems** (`subgems/`) provide concrete implementations:
+2. **Submodules** (`submodules/`) provide concrete implementations:
    - Runtime gems implement execution environments
    - Connector gems implement data sources/sinks
 3. **Rails engine** (`app/`) provides management interface
 4. **Example apps** demonstrate integration
-5. Each subgem can be independently versioned and published as a gem
+5. Each submodule can be independently versioned and published as a gem
