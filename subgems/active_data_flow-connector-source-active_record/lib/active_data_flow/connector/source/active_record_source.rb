@@ -6,30 +6,30 @@ module ActiveDataFlow
       class ActiveRecordSource < ::ActiveDataFlow::Connector::Source::Base
         attr_reader :model_class, :scope_name, :scope_params, :batch_size
 
-        # Initialize with either a scope or model_class + scope_name
-        # 
-        # Examples:
-        #   # Using a scope directly (not serializable)
-        #   new(scope: User.where(active: true))
-        #   
-        #   # Using model class and scope name (serializable)
-        #   new(model_class: User, scope_name: :active)
-        #   new(model_class: User, scope_name: :created_after, scope_params: [1.week.ago])
-        def initialize(scope: nil, scope_params: [], batch_size: nil)
-
-          # extract model for serialization
+        def initialize(scope:, batch_size: 100, scope_params: [])
+          raise ArgumentError, "scope is required" if scope.nil?
+          
+          # Validate that this is a named scope, not an ad-hoc where clause
+          unless scope.respond_to?(:name) && scope.name.present?
+            raise ArgumentError, "source must be a named scope (e.g., Product.active), not an ad-hoc query like Product.where(...)"
+          end
+          
+          # Store the scope directly
+          @scope = scope
+          
+          # Extract model for serialization
           @model_class = scope.model
           @scope_name = scope.name
-          @scope_params = []
+          @scope_params = scope_params
           
-          @batch_size ||= 5
+          @batch_size = batch_size
           
           # Store serializable representation
           super(
             model_class: @model_class.name,
             scope_name: @scope_name,
             scope_params: @scope_params,
-            batch_size: batch_size
+            batch_size: @batch_size
           )
         end
 
@@ -52,10 +52,10 @@ module ActiveDataFlow
         # Override deserialization to reconstruct scope
         def self.from_json(data)
           model_class = Object.const_get(data["model_class"])
+          scope = model_class.public_send(data["scope_name"])
           
           new(
-            model_class: model_class,
-            scope_name: data["scope_name"],
+            scope: scope,
             scope_params: data["scope_params"],
             batch_size: data["batch_size"]
           )

@@ -4,17 +4,16 @@ class <%= class_name %>Flow
   # Option 1: Use the ActiveRecord2ActiveRecord concern for a DSL approach
   # include ActiveDataFlow::ActiveRecord2ActiveRecord
   #
-  # source SourceModel.where(active: true), batch_size: 100
-  # sink DestinationModel, batch_size: 100
-  # runtime ActiveDataFlow::Runtime::Base.new(interval: 3600)
+  # source SourceModel.where(active: true)
+  # sink DestinationModel
+  # runtime :heartbeat, interval: 3600, batch_size: 100, enabled: true
   # register name: "<%= file_name %>"
 
   # Option 2: Define manually with more control
   def self.register
     source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
       model_class: SourceModel,
-      scope_name: :active,
-      batch_size: 100
+      scope_name: :active
     )
 
     sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
@@ -23,7 +22,9 @@ class <%= class_name %>Flow
     )
 
     runtime = ActiveDataFlow::Runtime::Base.new(
-      interval: 3600
+      interval: 3600,
+      batch_size: 100,  # Source iteration batch size
+      enabled: true     # Whether the data flow is enabled
     )
 
     ActiveDataFlow::DataFlow.find_or_create(

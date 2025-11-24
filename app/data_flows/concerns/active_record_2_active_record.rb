@@ -1,63 +1,97 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module ActiveDataFlow
   module ActiveRecord2ActiveRecord
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :source_connector, :sink_connector, :runtime_runner
-      class_attribute :data_flow_instance
+      class_attribute :_source_config, :_sink_config, :_runtime_config
     end
 
     class_methods do
-      # Define the source for this data flow
-      # @param scope [ActiveRecord::Relation] The scope to read from
-      # @param config [Hash] Configuration options
-      # @option config [Integer] :batch_size Batch size for iteration
-      # @option config [Array] :scope_params Parameters for named scopes
-      def source(scope, config = {})
-        self.source_connector = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
-          scope: scope,
-          batch_size: config[:batch_size] || 100
+      def source(scope)
+        self._source_config = { scope: scope }
+      end
+
+      def sink(model_class)
+        self._sink_config = { model_class: model_class }
+      end
+
+      def runtime(type, **options)
+        interval = options[:interval] || 3600
+        batch_size = options[:batch_size] || 100
+        enabled = options.fetch(:enabled, true)
+        self._runtime_config = { type: type, interval: interval, batch_size: batch_size, enabled: enabled }
+      end
+
+      def register(name: nil)
+        flow_name = name || self.name.underscore
+        source_config = _source_config
+        sink_config = _sink_config
+        runtime_config = _runtime_config
+
+        raise "source not configured for #{self.name}" unless source_config
+        raise "sink not configured for #{self.name}" unless sink_config
+
+        batch_size = runtime_config&.dig(:batch_size) || 100
+
+        source_obj = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
+          scope: source_config[:scope],
+          batch_size: batch_size
         )
-      end
 
-      # Define the sink for this data flow
-      # @param model_class [Class] The ActiveRecord model to write to
-      # @param config [Hash] Configuration options
-      # @option config [Integer] :batch_size Batch size for writes
-      def sink(model_class, config = {})
-        self.sink_connector = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
-          model_class: model_class,
-          batch_size: config[:batch_size] || 100
+        sink_obj = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
+          model_class: sink_config[:model_class]
         )
-      end
 
-      # Define the runtime for this data flow
-      # @param runtime_instance [ActiveDataFlow::Runtime::Base] Runtime instance
-      def runtime(runtime_runner)
-        self.runtime_runner = runtime_runner
-      end
-
-      # Register the data flow
-      # @param name [String] Name of the data flow
-      def register(name:)
-        self.data_flow_instance = ActiveDataFlow::DataFlow.find_or_create(
-          name: name,
-          source: source_connector,
-          sink: sink_connector,
-          runtime: runtime_connector
-        )
-      end
-
-      # Execute the data flow
-      def execute
-        raise "Data flow not registered. Call register(name: 'flow_name') first." unless data_flow_instance
-
-        source_connector.each do |record|
-          sink_connector.write(record)
+        runtime_obj = if runtime_config
+          case runtime_config[:type]
+          when :heartbeat
+            ActiveDataFlow::Runtime::Base.new(interval: runtime_config[:interval])
+          else
+            ActiveDataFlow::Runtime::Base.new(interval: runtime_config[:interval])
+          end
+        else
+          nil
         end
+
+        data_flow = ActiveDataFlow::DataFlow.find_or_create(
+          name: flow_name,
+          source: source_obj,
+          sink: sink_obj,
+          runtime: runtime_obj
+        )
+        
+        # Update status based on enabled flag
+        if runtime_config && runtime_config[:enabled] == false
+          data_flow.update(status: 'inactive')
+        end
+        
+        data_flow
       end
+    end
+
+    def initialize
+      # Reconstruct source and sink from class config
+      source_config = self.class._source_config
+      sink_config = self.class._sink_config
+      runtime_config = self.class._runtime_config
+      
+      batch_size = runtime_config&.dig(:batch_size) || 100
+      
+      @source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
+        scope: source_config[:scope],
+        batch_size: batch_size
+      )
+      
+      @sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
+        model_class: sink_config[:model_class]
+      )
+      
+      # Create a simple object to hold source and sink
+      @flow = OpenStruct.new(source: @source, sink: @sink)
     end
   end
 end

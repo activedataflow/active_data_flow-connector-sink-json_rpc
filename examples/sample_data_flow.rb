@@ -10,8 +10,7 @@ class UserSyncFlow
     # Define source - where data comes from
     source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
       model_class: User,
-      scope_name: :active,  # Assumes User.active scope exists
-      batch_size: 100
+      scope_name: :active  # Assumes User.active scope exists
     )
 
     # Define sink - where data goes
@@ -22,7 +21,9 @@ class UserSyncFlow
 
     # Define runtime (optional)
     runtime = ActiveDataFlow::Runtime::Base.new(
-      interval: 3600  # Run every hour
+      interval: 3600,   # Run every hour
+      batch_size: 100,  # Source iteration batch size
+      enabled: true     # Whether the data flow is enabled
     )
 
     # Register the data flow

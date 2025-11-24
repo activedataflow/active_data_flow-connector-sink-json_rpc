@@ -1,0 +1,4 @@
+# ActiveDataFlow - Ignore data flow files (optional)
+# Uncomment these lines if you don't want to track data flow files in git
+# /app/data_flows/*.rb
+# !/app/data_flows/.keep

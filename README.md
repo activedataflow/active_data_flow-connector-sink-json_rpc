@@ -38,6 +38,18 @@ Run the migrations:
 rails db:migrate
 ```
 
+### Optional: Ignore Data Flow Files
+
+If you don't want to track data flow files in git, add to your `.gitignore`:
+
+```
+# Ignore data flow files (keep directory structure)
+/app/data_flows/*.rb
+!/app/data_flows/.keep
+```
+
+This is useful if data flows are environment-specific or generated dynamically.
+
 ## Configuration
 
 The install generator creates `config/initializers/active_data_flow.rb` where you can customize behavior:
@@ -93,9 +105,9 @@ For ActiveRecord-to-ActiveRecord data flows, you can use the provided concern fo
 class UserSyncFlow
   include ActiveDataFlow::ActiveRecord2ActiveRecord
 
-  source User.where(active: true), batch_size: 100
-  sink UserBackup, batch_size: 100
-  runtime ActiveDataFlow::Runtime::Base.new(interval: 3600)
+  source User.where(active: true)
+  sink UserBackup
+  runtime :heartbeat, interval: 3600, batch_size: 100, enabled: true
   
   register name: "user_sync"
 end

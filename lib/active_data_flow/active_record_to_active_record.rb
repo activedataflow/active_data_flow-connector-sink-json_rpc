@@ -21,13 +21,14 @@ module ActiveDataFlow
         self._runtime_config = { type: type, interval: interval }
       end
 
-      def register(name:)
+      def register(name: nil)
+        flow_name = name || self.name.underscore
         source_config = _source_config
         sink_config = _sink_config
         runtime_config = _runtime_config
 
-        raise "source not configured" unless source_config
-        raise "sink not configured" unless sink_config
+        raise "source not configured for #{self.name}" unless source_config
+        raise "sink not configured for #{self.name}" unless sink_config
 
         source_obj = if source_config[:model_or_scope].is_a?(ActiveRecord::Relation)
           ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
@@ -59,7 +60,7 @@ module ActiveDataFlow
         end
 
         ActiveDataFlow::DataFlow.find_or_create(
-          name: name,
+          name: flow_name,
           source: source_obj,
           sink: sink_obj,
           runtime: runtime_obj
@@ -68,7 +69,7 @@ module ActiveDataFlow
     end
 
     def initialize
-      @flow = self.class.register(name: self.class.name.underscore)
+      @flow = self.class.register
     end
   end
 end

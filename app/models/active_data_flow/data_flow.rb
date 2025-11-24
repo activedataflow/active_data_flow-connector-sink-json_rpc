@@ -2,55 +2,41 @@
 
 module ActiveDataFlow
   class DataFlow < ApplicationRecord
-    # Model representing a registered data flow
-    # Stores actual source, sink, and runtime instances as serialized objects
-    
-    # Custom serializer that stores objects as JSON with class info
-    class ObjectSerializer
-      def self.dump(obj)
-        return nil if obj.nil?
-        {
-          class: obj.class.name,
-          data: obj.as_json
-        }.to_json
-      end
-
-      def self.load(json)
-        return nil if json.nil?
-        data = JSON.parse(json)
-        klass = Object.const_get(data["class"])
-        klass.from_json(data["data"])
-      rescue NameError, JSON::ParserError
-        nil
-      end
-    end
-    
-    serialize :source, ObjectSerializer
-    serialize :sink, ObjectSerializer
-    serialize :runtime, ObjectSerializer
-    
     validates :name, presence: true, uniqueness: true
     validates :source, presence: true
     validates :sink, presence: true
     
+    # Scopes
+    scope :active, -> { where(status: 'active') }
+    scope :inactive, -> { where(status: 'inactive') }
+    
+    scope :due_to_run, -> {
+      where(status: 'active').where(
+        'last_run_at IS NULL OR last_run_at <= ?',
+        Time.current - 3600
+      )
+    }
+    
     def self.find_or_create(name:, source:, sink:, runtime:)
-      find_or_create_by(name: name) do |data_flow|
-        data_flow.source = source
-        data_flow.sink = sink
-        data_flow.runtime = runtime
-      end
+      flow = find_or_initialize_by(name: name)
+      flow.source = source.as_json
+      flow.sink = sink.as_json
+      flow.runtime = runtime&.as_json
+      flow.status = 'active'
+      flow.save!
+      flow
     end
     
-    def source_type
-      source&.class&.name
+    def interval_seconds
+      runtime&.dig('interval') || 3600
     end
     
-    def sink_type
-      sink&.class&.name
+    def mark_run_started!
+      update(last_run_at: Time.current, last_error: nil)
     end
     
-    def runtime_type
-      runtime&.class&.name
+    def mark_run_failed!(error)
+      update(last_error: error.to_s, status: 'failed')
     end
   end
 end
