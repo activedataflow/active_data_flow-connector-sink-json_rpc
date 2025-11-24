@@ -14,21 +14,21 @@ PATH
       rails (>= 6.0)
 
 PATH
-  remote: subgems/active_data_flow-connector-sink-active_record
+  remote: submodules/active_data_flow-connector-sink-active_record
   specs:
     active_data_flow-connector-sink-active_record (0.1.0)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
 
 PATH
-  remote: subgems/active_data_flow-connector-source-active_record
+  remote: submodules/active_data_flow-connector-source-active_record
   specs:
     active_data_flow-connector-source-active_record (0.1.0)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
 
 PATH
-  remote: subgems/active_data_flow-runtime-heartbeat
+  remote: submodules/active_data_flow-runtime-heartbeat
   specs:
     active_data_flow-runtime-heartbeat (0.1.1)
       rails (>= 6.0)
