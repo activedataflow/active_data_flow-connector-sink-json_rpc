@@ -10,7 +10,7 @@
 
 - **Bundler**: Dependency management via Gemfile
 - **RubyGems**: Gem packaging and distribution
-- **Submoduler**: Custom tool for managing git submodules and subgems in monorepo structure
+- **Submoduler**: Custom tool for managing git submodules in monorepo structure
 
 ## Testing
 

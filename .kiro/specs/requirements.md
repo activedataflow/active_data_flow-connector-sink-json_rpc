@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies the requirements for a Ruby gem called `active_data_flow` that provides stream processing patterns for Rails applications. The core gem defines abstract interfaces and base classes, while concrete implementations are provided in separate gems (subgems and submodules).
+This document specifies the requirements for a Ruby gem called `active_data_flow` that provides stream processing patterns for Rails applications. The core gem defines abstract interfaces and base classes, while concrete implementations are provided in separate gems (submodules).
 
 The `active_data_flow` gem provides:
 - Abstract Source/Sink/Runtime interfaces for pluggable components
@@ -108,12 +108,12 @@ The `active_data_flow` gem provides:
 
 ### Requirement 8: Modular Gem Architecture
 
-**User Story:** As a gem maintainer, I want a modular architecture with subgems, so that components can be developed and versioned independently while remaining part of the same repository.
+**User Story:** As a gem maintainer, I want a modular architecture with submodules, so that components can be developed and versioned independently in separate repositories.
 
 #### Acceptance Criteria
 
 1. THE ActiveDataFlow core gem SHALL define abstract base classes in `lib/` as placeholders
-2. THE ActiveDataFlow SHALL organize concrete implementations in `subgems/` directory as part of the same repository
-3. THE ActiveDataFlow SHALL allow each subgem to have its own gemspec for independent versioning
-4. THE ActiveDataFlow SHALL allow subgems to be published as separate gems while being developed in the monorepo
-5. THE ActiveDataFlow SHALL maintain a clear separation between core abstractions and subgem implementations
+2. THE ActiveDataFlow SHALL organize concrete implementations in `submodules/` directory as separate git repositories
+3. THE ActiveDataFlow SHALL allow each submodule to have its own gemspec for independent versioning
+4. THE ActiveDataFlow SHALL allow submodules to be published as separate gems with independent git history
+5. THE ActiveDataFlow SHALL maintain a clear separation between core abstractions and submodule implementations

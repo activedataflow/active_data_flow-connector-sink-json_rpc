@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   # Rails engine support
   spec.add_runtime_dependency "rails", ">= 6.0"
 
-  # Subgems
+  # Submodules
   spec.add_runtime_dependency "active_data_flow-connector-source-active_record"
   spec.add_runtime_dependency "active_data_flow-connector-sink-active_record"
   spec.add_runtime_dependency "active_data_flow-runtime-heartbeat"
