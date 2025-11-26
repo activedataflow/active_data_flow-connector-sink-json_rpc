@@ -2,19 +2,28 @@
 
 module ActiveDataFlow
   class DataFlow < ApplicationRecord
+    # Associations
+    has_many :data_flow_runs, dependent: :destroy
+    
+    # Validations
     validates :name, presence: true, uniqueness: true
     validates :source, presence: true
     validates :sink, presence: true
+    
+    # Callbacks
+    after_create :schedule_initial_run
+    after_update :reschedule_if_needed
     
     # Scopes
     scope :active, -> { where(status: 'active') }
     scope :inactive, -> { where(status: 'inactive') }
     
+    # Scope to find flows that have pending runs due to execute
     scope :due_to_run, -> {
-      where(status: 'active').where(
-        'last_run_at IS NULL OR last_run_at <= ?',
-        Time.current - 3600
-      )
+      joins(:data_flow_runs)
+        .where(status: 'active')
+        .where(data_flow_runs: { status: 'pending', run_after: ..Time.current })
+        .distinct
     }
     
     # Tell Rails how to generate routes for this model
@@ -36,12 +45,78 @@ module ActiveDataFlow
       runtime&.dig('interval') || 3600
     end
     
-    def mark_run_started!
-      update(last_run_at: Time.current, last_error: nil)
+    def enabled?
+      runtime&.dig('enabled') == true
     end
     
-    def mark_run_failed!(error)
-      update(last_error: error.to_s, status: 'failed')
+    # Get the next pending run that's due
+    def next_due_run
+      data_flow_runs.pending.where(run_after: ..Time.current).order(:run_after).first
+    end
+    
+    # Schedule the next run based on interval
+    def schedule_next_run(from_time = Time.current)
+      return unless enabled?
+      
+      next_run_time = from_time + interval_seconds.seconds
+      data_flow_runs.create!(
+        run_after: next_run_time,
+        status: 'pending'
+      )
+    end
+    
+    # Mark a run as started and schedule the next one
+    def mark_run_started!(run)
+      run.update!(
+        status: 'in_progress',
+        started_at: Time.current
+      )
+      update(last_run_at: Time.current, last_error: nil)
+      schedule_next_run
+    end
+    
+    # Mark a run as completed successfully
+    def mark_run_completed!(run)
+      run.update!(
+        status: 'success',
+        ended_at: Time.current
+      )
+    end
+    
+    # Mark a run as failed
+    def mark_run_failed!(run, error)
+      run.update!(
+        status: 'failed',
+        ended_at: Time.current,
+        error_message: error.to_s
+      )
+      update(last_error: error.to_s)
+    end
+    
+    private
+    
+    def schedule_initial_run
+      return unless enabled?
+      
+      # Schedule first run immediately if active
+      initial_run_time = status == 'active' ? Time.current : Time.current + interval_seconds.seconds
+      data_flow_runs.create!(
+        run_after: initial_run_time,
+        status: 'pending'
+      )
+    end
+    
+    def reschedule_if_needed
+      return unless saved_change_to_runtime? || saved_change_to_status?
+      
+      if status == 'active' && enabled?
+        # Cancel any pending runs and schedule a new one
+        data_flow_runs.pending.update_all(status: 'cancelled')
+        schedule_next_run
+      elsif status == 'inactive'
+        # Cancel all pending runs
+        data_flow_runs.pending.update_all(status: 'cancelled')
+      end
     end
   end
 end

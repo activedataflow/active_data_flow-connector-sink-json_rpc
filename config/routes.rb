@@ -8,5 +8,7 @@ ActiveDataFlow::Engine.routes.draw do
     member do
       post :trigger
     end
+    
+    resources :data_flow_runs, only: [:index, :show, :create]
   end
 end

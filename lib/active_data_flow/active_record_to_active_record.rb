@@ -17,8 +17,8 @@ module ActiveDataFlow
         self._sink_config = { model_class: model_class, batch_size: batch_size }
       end
 
-      def runtime(type, interval: 3600)
-        self._runtime_config = { type: type, interval: interval }
+      def runtime(type, interval: 3600, batch_size: 100, enabled: true)
+        self._runtime_config = { type: type, interval: interval, batch_size: batch_size, enabled: enabled }
       end
 
       def register(name: nil)
@@ -51,9 +51,17 @@ module ActiveDataFlow
         runtime_obj = if runtime_config
           case runtime_config[:type]
           when :heartbeat
-            ActiveDataFlow::Runtime::Base.new(interval: runtime_config[:interval])
+            ActiveDataFlow::Runtime::Base.new(
+              interval: runtime_config[:interval],
+              batch_size: runtime_config[:batch_size],
+              enabled: runtime_config[:enabled]
+            )
           else
-            ActiveDataFlow::Runtime::Base.new(interval: runtime_config[:interval])
+            ActiveDataFlow::Runtime::Base.new(
+              interval: runtime_config[:interval],
+              batch_size: runtime_config[:batch_size],
+              enabled: runtime_config[:enabled]
+            )
           end
         else
           nil
@@ -70,6 +78,28 @@ module ActiveDataFlow
 
     def initialize
       @flow = self.class.register
+    end
+
+    # Check if this flow has any runs due to execute
+    def due_to_run?
+      @flow.next_due_run.present?
+    end
+
+    # Execute the flow if it's due to run
+    def run_if_due
+      return false unless due_to_run?
+      
+      run_record = @flow.next_due_run
+      run_record.start!
+      
+      begin
+        run
+        run_record.complete!
+        true
+      rescue StandardError => e
+        run_record.fail!(e)
+        raise
+      end
     end
   end
 end
