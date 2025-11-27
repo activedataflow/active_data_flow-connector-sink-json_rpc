@@ -14,6 +14,7 @@ gemspec
 gem 'active_data_flow-connector-source-active_record', path: 'submodules/active_data_flow-connector-source-active_record'
 gem 'active_data_flow-connector-sink-active_record', path: 'submodules/active_data_flow-connector-sink-active_record'
 gem 'active_data_flow-runtime-heartbeat', path: 'submodules/active_data_flow-runtime-heartbeat'
+gem 'active_data_flow-runtime-redcord', path: 'submodules/active_data_flow-runtime-redcord'
 gem 'rainbow', '~> 3.0'
 gem 'octokit', '~> 4.0'
 gem 'inifile', '~> 3.0'

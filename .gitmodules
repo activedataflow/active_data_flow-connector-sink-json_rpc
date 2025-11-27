@@ -12,3 +12,9 @@
 [submodule "submodules/active_data_flow-runtime-heartbeat"]
 	path = submodules/active_data_flow-runtime-heartbeat
 	url = https://github.com/magenticmarketactualskill/active_data_flow-runtime-heartbeat.git
+[submodule "submodules/active_data_flow-runtime-redcord"]
+	path = submodules/active_data_flow-runtime-redcord
+	url = https://github.com/magenticmarketactualskill/active_data_flow-runtime-redcord
+[submodule "submodules/examples/rails8-redcord"]
+	path = submodules/examples/rails8-redcord
+	url = https://github.com/magenticmarketactualskill/active_dataflow-examples-rails8-redcord.git
