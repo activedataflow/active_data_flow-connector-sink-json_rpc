@@ -49,8 +49,7 @@ puts
 puts "Usage:"
 puts <<~RUBY
   sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
-    model_class: UserBackup,
-    batch_size: 100  # Optional: for batch inserts
+    model_class: UserBackup
   )
   
   # Write single record
@@ -81,12 +80,11 @@ puts <<~RUBY
   
   # Define sink
   sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
-    model_class: UserBackup,
-    batch_size: 100  # Sink can use batch_size for batch inserts
+    model_class: UserBackup
   )
   
   # Create data flow with runtime configuration
-  # batch_size is configured on the runtime, not the source
+  # batch_size is configured on the runtime only
   ActiveDataFlow::DataFlow.create!(
     name: "active_users_backup",
     source: source,
