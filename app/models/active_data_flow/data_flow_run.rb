@@ -14,6 +14,7 @@ module ActiveDataFlow
     # Scopes
     scope :pending, -> { where(status: 'pending') }
     scope :in_progress, -> { where(status: 'in_progress') }
+    scope :success, -> { where(status: 'success') }
     scope :completed, -> { where(status: ['success', 'failed']) }
     scope :due, -> { where(run_after: ..Time.current) }
     scope :overdue, -> { pending.where(run_after: ..1.hour.ago) }

@@ -9,6 +9,7 @@ submodules/**/*
 
 # Ignore vendored gems
 vendor/
+!vendor/submoduler_*/
 
 # Ignore hidden
 hide/
