@@ -4,18 +4,13 @@
   <title>ActiveDataFlow</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-  <%= stylesheet_link_tag "active_data_flow/application" %>
 </head>
 <body>
-  <header>
-    <h1>ActiveDataFlow</h1>
-    <nav>
-      <%= link_to "Dashboard", active_data_flow.root_path %>
-      <%= link_to "Data Flows", active_data_flow.data_flows_path %>
-    </nav>
+  <header style="background-color: #1f2937; color: white; padding: 20px;">
+    <h1 style="margin: 0;">ActiveDataFlow</h1>
   </header>
   
-  <main>
+  <main style="padding: 20px;">
     <%= yield %>
   </main>
 </body>

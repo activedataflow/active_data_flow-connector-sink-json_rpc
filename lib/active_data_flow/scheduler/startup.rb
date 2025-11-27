@@ -124,19 +124,13 @@ module ActiveDataFlow
       end
 
       def create_initial_run_for_flow(data_flow)
-        interval = data_flow.interval_seconds
-        next_run = Time.current + interval
-        
-        data_flow.data_flow_runs.create!(
-          status: 'pending',
-          run_after: next_run
-        )
+        DataFlowRun.create_pending_for_data_flow(data_flow)
       end
 
       # Cancel all pending runs that are overdue or stale from previous sessions
       def change_pending_to_canceled
         # Find pending runs that are significantly overdue (more than 1 hour past their run_after time)
-        overdue_runs = DataFlowRun.pending.where('run_after < ?', 1.hour.ago)
+        overdue_runs = DataFlowRun.overdue
         canceled_count = overdue_runs.update_all(status: 'cancelled')
         
         if canceled_count > 0
