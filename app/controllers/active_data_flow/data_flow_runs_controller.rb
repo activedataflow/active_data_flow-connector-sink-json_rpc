@@ -4,7 +4,7 @@ module ActiveDataFlow
   class DataFlowRunsController < ApplicationController
     layout 'application'
     before_action :set_data_flow_run, only: [:show]
-    before_action :set_data_flow, only: [:index, :create]
+    before_action :set_data_flow, only: [:index, :create, :purge]
 
     def index
       @data_flow_runs = @data_flow.data_flow_runs
@@ -24,6 +24,12 @@ module ActiveDataFlow
         redirect_to @data_flow, alert: 'Failed to schedule data flow run.'
       end
     end
+
+def purge
+  count = @data_flow.data_flow_runs.count
+  @data_flow.data_flow_runs.delete_all
+  redirect_to "/active_data_flow/data_flows/#{@data_flow.id}/data_flow_runs", notice: "Purged #{count} run(s)"
+end
 
     private
 

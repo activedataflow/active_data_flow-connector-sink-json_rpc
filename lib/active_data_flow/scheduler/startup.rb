@@ -129,7 +129,6 @@ module ActiveDataFlow
         
         data_flow.data_flow_runs.create!(
           status: 'pending',
-          started_at: Time.current,
           run_after: next_run
         )
       end
