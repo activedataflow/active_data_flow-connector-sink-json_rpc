@@ -56,19 +56,6 @@ app/
 - Key actions:
   - `heartbeat` - POST endpoint that executes due DataFlows
 
-### Services
-
-**FlowExecutor** (`app/services/active_data_flow/rails_heartbeat_app/flow_executor.rb`)
-- Orchestrates DataFlow execution lifecycle
-- Responsibilities:
-  - Creates DataFlowRun records
-  - Instantiates and executes flow classes
-  - Updates status and timestamps
-  - Captures errors and backtraces
-- Key methods:
-  - `self.execute(data_flow)` - Class method entry point
-  - `execute` - Instance method that runs the flow
-
 ## Engine Configuration
 
 The engine is defined in `submodules/active_data_flow-runtime-heartbeat/lib/active_data_flow/rails_heartbeat_app/engine.rb`:
