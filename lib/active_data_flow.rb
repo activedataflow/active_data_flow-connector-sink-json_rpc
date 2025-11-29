@@ -6,14 +6,15 @@ require "active_data_flow/engine"
 require "active_data_flow/railtie" if defined?(Rails::Railtie)
 
 # Load base classes
-require "active_data_flow/connector/source"
-require "active_data_flow/connector/sink"
 require "active_data_flow/runtime/base"
-
 require "active_data_flow/message"
 require "active_data_flow/connector"
+require "active_data_flow/connector/source"
 require "active_data_flow/runtime"
+require "active_data_flow/connector/sink"
 
 # Load concerns and scheduler (only in Rails context)
 require "active_data_flow/concerns" if defined?(Rails)
 require "active_data_flow/scheduler" if defined?(Rails)
+require "active_data_flow/data_flows_folder" if defined?(Rails)
+

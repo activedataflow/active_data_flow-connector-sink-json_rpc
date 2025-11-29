@@ -39,6 +39,14 @@ module ActiveDataFlow
 
       private
 
+      def auto_load_enabled?
+        unless ActiveDataFlow.configuration.auto_load_data_flows
+          puts "[ActiveDataFlow] Auto-loading disabled"
+          return false
+        end
+        true
+      end
+      
       def load_engine_concerns
         ActiveDataFlow::Concerns.load_engine_concerns(engine_root)
       end

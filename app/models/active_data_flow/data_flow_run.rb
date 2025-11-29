@@ -12,6 +12,13 @@ module ActiveDataFlow
     validates :run_after, presence: true
 
     # Scopes
+    # Scope to find flows that have pending runs due to execute
+    scope :due_to_run, -> {
+      where(status: 'pending', run_after: ..Time.current)
+        .joins(:data_flow)
+    }
+        #.where(data_flows: { status: 'active' })
+    #}
     scope :pending, -> { where(status: 'pending') }
     scope :in_progress, -> { where(status: 'in_progress') }
     scope :success, -> { where(status: 'success') }
