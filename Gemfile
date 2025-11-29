@@ -10,7 +10,7 @@ gem 'submoduler-submoduler_parent', path: 'vendor/submoduler_parent'
 # Load dependencies from gemspec
 gemspec
 
-gem 'gem_steering', git: 'https://github.com/magenticmarketactualskill/gem_steering.git'
+gem 'git_steering', path: 'vendor/git_steering'
 
 # Submodule path overrides for local development
 gem 'active_data_flow-connector-source-active_record', path: 'submodules/active_data_flow-connector-source-active_record'

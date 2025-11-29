@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_data_flow (0.1.1)
+    active_data_flow (0.1.11)
       active_data_flow-connector-sink-active_record
       active_data_flow-connector-source-active_record
       active_data_flow-runtime-heartbeat
@@ -10,22 +10,35 @@ PATH
 PATH
   remote: submodules/active_data_flow-connector-sink-active_record
   specs:
-    active_data_flow-connector-sink-active_record (0.1.0)
+    active_data_flow-connector-sink-active_record (0.1.25)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
 
 PATH
   remote: submodules/active_data_flow-connector-source-active_record
   specs:
-    active_data_flow-connector-source-active_record (0.1.0)
+    active_data_flow-connector-source-active_record (0.1.25)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
 
 PATH
   remote: submodules/active_data_flow-runtime-heartbeat
   specs:
-    active_data_flow-runtime-heartbeat (0.1.1)
+    active_data_flow-runtime-heartbeat (0.1.25)
       rails (>= 6.0)
+
+PATH
+  remote: submodules/active_data_flow-runtime-redcord
+  specs:
+    active_data_flow-runtime-redcord (0.1.24)
+      rails (>= 6.0)
+
+PATH
+  remote: vendor/git_steering
+  specs:
+    git_steering (0.1.0)
+      rainbow (~> 3.0)
+      thor (~> 1.0)
 
 PATH
   remote: vendor/submoduler_parent
@@ -298,7 +311,9 @@ DEPENDENCIES
   active_data_flow-connector-sink-active_record!
   active_data_flow-connector-source-active_record!
   active_data_flow-runtime-heartbeat!
+  active_data_flow-runtime-redcord!
   bundler
+  git_steering!
   inifile (~> 3.0)
   octokit (~> 4.0)
   rainbow (~> 3.0)
