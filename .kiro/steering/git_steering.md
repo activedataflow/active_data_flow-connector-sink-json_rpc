@@ -2,6 +2,8 @@
 
 This project uses the `git_steering` gem to automatically manage symlinks for `.kiro/steering/*.md` files from vendor gems and submodules into the parent project's `.kiro/steering` directory.
 
+reference: https://github.com/magenticmarketactualskill/git_steering.git
+
 ### Quick Command
 
 To build/update all steering file symlinks:
