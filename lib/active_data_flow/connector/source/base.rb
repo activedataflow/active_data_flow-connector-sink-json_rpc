@@ -13,8 +13,10 @@ module ActiveDataFlow
         end
         
         # Iterate over records from the source
-        def each
-          raise NotImplementedError, "#{self.class} must implement #each"
+        # @param start_id [Integer, nil] Optional cursor ID to start from
+        # @yield [Hash] each record as a hash
+        def each(start_id: nil, &block)
+          raise NotImplementedError, "Subclasses must implement #each"
         end
         
         # Close the source and release resources

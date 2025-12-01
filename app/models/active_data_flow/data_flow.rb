@@ -61,7 +61,8 @@ module ActiveDataFlow
       first_id = nil
       last_id = nil
       
-      @source.each do |message|
+      # Pass cursor to source for incremental processing
+      @source.each(start_id: next_source_id) do |message|
         # Track cursors
         current_id = message_id(message)
         first_id ||= current_id
@@ -71,9 +72,15 @@ module ActiveDataFlow
         break if @count >= @runtime.batch_size
       end
       
-      # Update the current run with cursor information
-      if current_run = data_flow_runs.in_progress.first
-        current_run.update(first_id: first_id, last_id: last_id) if first_id && last_id
+      # Update cursor on DataFlow to track progress
+      if last_id
+        update(next_source_id: last_id)
+        Rails.logger.info("[DataFlow] Advanced cursor to #{last_id}")
+        
+        # Also update the run record for tracking
+        if current_run = data_flow_runs.in_progress.first
+          current_run.update(first_id: first_id, last_id: last_id)
+        end
       end
     rescue StandardError => e
       Rails.logger.error("DataFlow error: #{e.message}")
