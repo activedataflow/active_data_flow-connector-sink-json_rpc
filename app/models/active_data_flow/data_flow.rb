@@ -51,12 +51,7 @@ module ActiveDataFlow
     end
 
     def run_one(message)
-      transformed = transform(message)
-      
-      # Check for collisions (subclasses can override transform_collision)
-      collision = transform_collision(transformed: transformed)
-      Rails.logger.warn("[DataFlow] Collision detected: #{collision.inspect}") if collision
-      
+      transformed = @runtime.transform(message)
       @sink.write(transformed)
       @count += 1
     end
@@ -73,7 +68,7 @@ module ActiveDataFlow
         last_id = current_id
         
         run_one(message)
-        break if @count >= @source.batch_size
+        break if @count >= @runtime.batch_size
       end
       
       # Update the current run with cursor information
@@ -131,7 +126,7 @@ module ActiveDataFlow
     end
     
     def run
-      # Cast to flow_class if needed to ensure we have the correct methods (like transform)
+      # Cast to flow_class if needed to ensure we have the correct runtime
       flow_instance = if self.class == ActiveDataFlow::DataFlow && flow_class != ActiveDataFlow::DataFlow
                         becomes(flow_class)
                       else
@@ -155,6 +150,7 @@ module ActiveDataFlow
     def prepare_run
       @source = rehydrate_connector(source)
       @sink = rehydrate_connector(sink)
+      @runtime = rehydrate_runtime(runtime)
     end
 
     def rehydrate_connector(data)
@@ -171,6 +167,22 @@ module ActiveDataFlow
     rescue NameError => e
       Rails.logger.error "[ActiveDataFlow] Failed to load connector class: #{e.message}"
       nil
+    end
+    
+    def rehydrate_runtime(data)
+      return ActiveDataFlow::Runtime::Base.new unless data
+      
+      klass_name = data['class_name']
+      unless klass_name
+        Rails.logger.warn "[ActiveDataFlow] Runtime class name missing in data: #{data.inspect}"
+        return ActiveDataFlow::Runtime::Base.new
+      end
+      
+      klass = klass_name.constantize
+      klass.from_json(data)
+    rescue NameError => e
+      Rails.logger.error "[ActiveDataFlow] Failed to load runtime class: #{e.message}"
+      ActiveDataFlow::Runtime::Base.new
     end
     
     def schedule_initial_run

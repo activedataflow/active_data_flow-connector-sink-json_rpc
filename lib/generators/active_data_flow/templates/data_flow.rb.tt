@@ -5,44 +5,44 @@ require 'active_data_flow'
 #
 # This DataFlow:
 # - Reads from a source
-# - Transforms data
+# - Transforms data (in Runtime class)
 # - Writes to a sink
-class <%= class_name %>Flow
+class <%= class_name %>Flow < ActiveDataFlow::DataFlow
+
+  class Source < ActiveDataFlow::Connector::Source::Base
+    def initialize
+      super(
+        # TODO: Configure your source
+      )
+    end
+  end
+
+  class Runtime < ActiveDataFlow::Runtime::Base
+    def initialize(batch_size: 100)
+      super
+    end
+    
+    # Transforms data for processing
+    def transform(data)
+      # TODO: Implement your transformation logic here
+      data
+    end
+  end
+
+  class Sink < ActiveDataFlow::Connector::Sink::Base
+    def initialize
+      super(
+        # TODO: Configure your sink
+      )
+    end
+  end
 
   def self.register
-    @source = <%= render_template('source.rb') %>
-
-    @sink = <%= render_template('sink.rb') %>
-    
-    @runtime = <%= render_template('runtime.rb') %>
-
-    ActiveDataFlow::DataFlow.find_or_create(
+    find_or_create(
       name: "<%= file_name %>_flow",
-      source: source,
-      sink: sink,
-      runtime: runtime
+      source: Source.new,
+      sink: Sink.new,
+      runtime: Runtime.new
     )
-  end
-
-  def run
-    count = 0
-    @source.each do |message|
-      transformed = transform(message)
-      @sink.write(transformed)
-      count += 1
-      break if count >= @source.batch_size
-    end
-  rescue StandardError => e
-    Rails.logger.error("<%= class_name %>Flow error: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n"))
-    raise
-  end
-
-  private
-
-  # Transforms data for processing
-  def transform(data)
-    # TODO: Implement your transformation logic here
-    data
   end
 end

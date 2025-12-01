@@ -29,7 +29,9 @@ module ActiveDataFlow
         
         # Deserialize from JSON
         def self.from_json(data)
-          new(**data.symbolize_keys)
+          data = data.symbolize_keys
+          data.delete(:class_name) # Remove class_name as it's not a constructor parameter
+          new(**data)
         end
       end
     end
