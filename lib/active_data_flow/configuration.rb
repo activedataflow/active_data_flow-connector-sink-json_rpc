@@ -2,12 +2,40 @@
 
 module ActiveDataFlow
   class Configuration
-    attr_accessor :auto_load_data_flows, :log_level, :data_flows_path
+    attr_accessor :auto_load_data_flows, :log_level, :data_flows_path, :storage_backend, :redis_config
+
+    SUPPORTED_BACKENDS = [:active_record, :redcord_redis, :redcord_redis_emulator].freeze
 
     def initialize
       @auto_load_data_flows = true
       @log_level = :info
       @data_flows_path = "app/data_flows"
+      @storage_backend = :active_record
+      @redis_config = {}
+    end
+
+    def validate_storage_backend!
+      return if SUPPORTED_BACKENDS.include?(storage_backend)
+
+      raise ConfigurationError,
+            "Unsupported storage backend: #{storage_backend}. " \
+            "Supported backends: #{SUPPORTED_BACKENDS.join(', ')}"
+    end
+
+    def active_record?
+      storage_backend == :active_record
+    end
+
+    def redcord?
+      redcord_redis? || redcord_redis_emulator?
+    end
+
+    def redcord_redis?
+      storage_backend == :redcord_redis
+    end
+
+    def redcord_redis_emulator?
+      storage_backend == :redcord_redis_emulator
     end
   end
 

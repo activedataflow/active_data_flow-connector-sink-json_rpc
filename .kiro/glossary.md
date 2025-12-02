@@ -25,3 +25,10 @@ This glossary defines terms used throughout the ActiveDataFlow project documenta
 ## Configuration
 
 - **Configuration File**: A Ruby file (config/initializers/active_data_flow.rb) where users configure the gem
+- **Storage Backend Loader**: Component that loads the appropriate model implementations based on configuration
+
+## Error Classes
+
+- **ConfigurationError**: Raised when storage backend configuration is invalid
+- **ConnectionError**: Raised when Redis connection fails
+- **DependencyError**: Raised when required gems are not installed

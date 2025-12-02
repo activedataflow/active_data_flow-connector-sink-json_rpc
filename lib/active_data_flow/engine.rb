@@ -17,8 +17,14 @@ module ActiveDataFlow
       g.factory_bot dir: "spec/factories"
     end
 
+    # Load storage backend before other initializers
+    initializer "active_data_flow.load_storage_backend", before: :load_config_initializers do
+      ActiveDataFlow::StorageBackendLoader.setup_autoload_paths(self)
+    end
+
     initializer "active_data_flow.log_startup" do
       puts "[ActiveDataFlow] Initializer running"
+      ActiveDataFlow::StorageBackendLoader.log_configuration
     end
 
     initializer "active_data_flow.assets" do |app|

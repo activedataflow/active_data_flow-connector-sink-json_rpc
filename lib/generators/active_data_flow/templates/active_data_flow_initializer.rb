@@ -1,20 +1,35 @@
-# frozen_string_literal: true
-
 # ActiveDataFlow Configuration
-# Customize the behavior of ActiveDataFlow in your application
-
 ActiveDataFlow.configure do |config|
-  # Enable/disable automatic loading of data flows
-  # When enabled, data flows in app/data_flows/ are automatically loaded and registered
-  # Default: true
+  # Storage Backend Configuration
+  # Choose one of: :active_record, :redcord_redis, :redcord_redis_emulator
+  # Default: :active_record
+  config.storage_backend = :active_record
+
+  # === ActiveRecord Backend (default) ===
+  # Uses your Rails database (PostgreSQL, MySQL, SQLite, etc.)
+  # Requires: Standard Rails setup with database.yml
+  # Migrations: Run `rails active_data_flow:install:migrations` and `rails db:migrate`
+
+  # === Redcord Redis Backend ===
+  # Uses a standard Redis server for storage
+  # Requires: gem 'redis' and gem 'redcord'
+  # config.storage_backend = :redcord_redis
+  # config.redis_config = {
+  #   url: ENV['REDIS_URL'] || 'redis://localhost:6379/0'
+  #   # OR specify individual options:
+  #   # host: 'localhost',
+  #   # port: 6379,
+  #   # db: 0
+  # }
+
+  # === Redcord Redis Emulator Backend ===
+  # Uses redis-emulator backed by Rails Solid Cache (no separate Redis server needed)
+  # Requires: gem 'redis-emulator' and gem 'redcord'
+  # config.storage_backend = :redcord_redis_emulator
+  # Note: Uses Rails.cache as backing store (configure in config/cache.yml)
+
+  # Other configuration options
   config.auto_load_data_flows = true
-
-  # Set log level for data flow loading
-  # Options: :debug, :info, :warn, :error
-  # Default: :info
   config.log_level = :info
-
-  # Set the path where data flows are located
-  # Default: "app/data_flows"
   config.data_flows_path = "app/data_flows"
 end

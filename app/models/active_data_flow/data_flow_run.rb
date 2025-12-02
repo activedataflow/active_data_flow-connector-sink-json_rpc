@@ -1,97 +1,19 @@
 # frozen_string_literal: true
 
+# Backward compatibility: Alias to the backend-specific implementation
+# This file maintains compatibility with existing code that references ActiveDataFlow::DataFlowRun
+
 module ActiveDataFlow
-  class DataFlowRun < ApplicationRecord
-    self.table_name = "active_data_flow_data_flow_runs"
-
-    # Associations
-    belongs_to :data_flow, class_name: "ActiveDataFlow::DataFlow"
-
-    # Validations
-    validates :status, inclusion: { in: %w[pending in_progress success failed cancelled] }
-    validates :run_after, presence: true
-
-    # Scopes
-    # Scope to find flows that have pending runs due to execute
-    scope :due_to_run, -> {
-      where(status: 'pending', run_after: ..Time.current)
-        .joins(:data_flow)
-    }
-        #.where(data_flows: { status: 'active' })
-    #}
-    scope :pending, -> { where(status: 'pending') }
-    scope :in_progress, -> { where(status: 'in_progress') }
-    scope :success, -> { where(status: 'success') }
-    scope :completed, -> { where(status: ['success', 'failed']) }
-    scope :due, -> { where(run_after: ..Time.current) }
-    scope :overdue, -> { pending.where(run_after: ..1.hour.ago) }
-
-    def self.create_pending_for_data_flow(data_flow)
-      interval = data_flow.interval_seconds
-      next_run = Time.current + interval
-      
-      data_flow.data_flow_runs.create!(
-        status: 'pending',
-        run_after: next_run
-      )
-    end
-
-    # Tell Rails how to generate routes for this model
-    def self.model_name
-      @_model_name ||= ActiveModel::Name.new(self, ActiveDataFlow, "data_flow_run")
-    end
-
-    # Instance Methods
-    def duration
-      return nil unless started_at && ended_at
-      ended_at - started_at
-    end
-
-    def pending?
-      status == 'pending'
-    end
-
-    def in_progress?
-      status == 'in_progress'
-    end
-
-    def success?
-      status == 'success'
-    end
-
-    def failed?
-      status == 'failed'
-    end
-
-    def cancelled?
-      status == 'cancelled'
-    end
-
-    def completed?
-      success? || failed?
-    end
-
-    def due?
-      pending? && run_after <= Time.current
-    end
-
-    def overdue?
-      pending? && run_after <= 1.hour.ago
-    end
-
-    # Mark this run as started
-    def start!
-      data_flow.mark_run_started!(self)
-    end
-
-    # Mark this run as completed successfully
-    def complete!
-      data_flow.mark_run_completed!(self)
-    end
-
-    # Mark this run as failed
-    def fail!(error)
-      data_flow.mark_run_failed!(self, error)
+  # Dynamically load the appropriate backend model based on configuration
+  def self.DataFlowRun
+    case configuration.storage_backend
+    when :active_record
+      ActiveDataFlow::ActiveRecord::DataFlowRun
+    when :redcord_redis, :redcord_redis_emulator
+      ActiveDataFlow::Redcord::DataFlowRun
+    else
+      # Default to ActiveRecord
+      ActiveDataFlow::ActiveRecord::DataFlowRun
     end
   end
 end

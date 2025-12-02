@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
+require "active_record"
 require "active_data_flow"
+
+# Load ActiveRecord models for testing
+require_relative "../app/models/active_data_flow/active_record/data_flow"
+require_relative "../app/models/active_data_flow/active_record/data_flow_run"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

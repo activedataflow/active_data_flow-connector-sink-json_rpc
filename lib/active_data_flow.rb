@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require "active_data_flow/version"
+require "active_data_flow/errors"
 require "active_data_flow/configuration"
+require "active_data_flow/storage_backend_loader"
 require "active_data_flow/engine"
 require "active_data_flow/railtie" if defined?(Rails::Railtie)
 
