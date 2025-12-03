@@ -18,3 +18,6 @@
 [submodule "submodules/examples/rails8-redcord"]
 	path = submodules/examples/rails8-redcord
 	url = https://github.com/magenticmarketactualskill/active_dataflow-examples-rails8-redcord.git
+[submodule "submodules/examples/rails8-newui"]
+	path = submodules/examples/rails8-newui
+	url = https://github.com/magenticmarketactualskill/rails8-newui.git
