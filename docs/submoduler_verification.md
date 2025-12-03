@@ -37,7 +37,19 @@ Submodules are managed as separate git repositories in the `submodules/` directo
 - **URL:** `https://github.com/magenticmarketactualskill/active_dataflow-examples-rails8-demo.git`
 - **Status:** ✅ Initialized and checked out
 - **Type:** Git submodule
-- **Current Commit:** `9fe6c776a18ce1781fb2334f75ea172e5334c585`
+
+### 2. rails8-redcord
+- **Path:** `submodules/examples/rails8-redcord`
+- **URL:** `https://github.com/magenticmarketactualskill/active_dataflow-examples-rails8-redcord.git`
+- **Status:** ✅ Initialized and checked out
+- **Type:** Git submodule
+
+### 3. rails8-newui
+- **Path:** `submodules/examples/rails8-newui`
+- **URL:** `https://github.com/magenticmarketactualskill/rails8-newui.git`
+- **Status:** ✅ Initialized and checked out
+- **Type:** Git submodule
+- **Description:** Rails 8 example with new UI (based on rails8-redcord)
 
 ## Verification Commands
 
@@ -63,13 +75,15 @@ ls -la submodules/
 - `active_data_flow-connector-source-active_record/`
 - `active_data_flow-runtime-heartbeat/`
 
-### Verify Submodule Directories
+### Verify Example Submodule Directories
 ```bash
 ls -la submodules/examples/
 ```
 
 **Expected directories:**
 - `rails8-demo/`
+- `rails8-redcord/`
+- `rails8-newui/`
 
 ## Configuration Validation
 
