@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  record_type: MyString
+  source_id: 1
+  data: 
+  received_at: 2025-12-10 19:41:10
+  processed_at: 2025-12-10 19:41:10
+
+two:
+  record_type: MyString
+  source_id: 1
+  data: 
+  received_at: 2025-12-10 19:41:10
+  processed_at: 2025-12-10 19:41:10
