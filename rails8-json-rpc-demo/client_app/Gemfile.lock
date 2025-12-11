@@ -1,4 +1,36 @@
 PATH
+  remote: ../../submodules/active_data_flow-connector-json_rpc
+  specs:
+    active_data_flow-connector-json_rpc (0.1.0)
+      active_data_flow (>= 0.1)
+      activesupport (>= 6.0)
+      jimson (~> 0.10)
+
+PATH
+  remote: ../../submodules/active_data_flow-connector-sink-json_rpc
+  specs:
+    active_data_flow-connector-sink-json_rpc (0.1.0)
+      active_data_flow (>= 0.1)
+      active_data_flow-connector-json_rpc (~> 0.1)
+      activesupport (>= 6.0)
+      jimson (~> 0.10)
+
+PATH
+  remote: ../../submodules/active_data_flow-connector-source-active_record
+  specs:
+    active_data_flow-connector-source-active_record (0.1.49)
+      active_data_flow (~> 0.1)
+      activerecord (>= 6.0)
+      activesupport (>= 6.0)
+
+PATH
+  remote: ../../submodules/active_data_flow-runtime-heartbeat
+  specs:
+    active_data_flow-runtime-heartbeat (0.1.49)
+      active_data_flow (~> 0.1)
+      rails (>= 6.0)
+
+PATH
   remote: ../..
   specs:
     active_data_flow (0.1.11)
@@ -423,6 +455,10 @@ PLATFORMS
 
 DEPENDENCIES
   active_data_flow!
+  active_data_flow-connector-json_rpc!
+  active_data_flow-connector-sink-json_rpc!
+  active_data_flow-connector-source-active_record!
+  active_data_flow-runtime-heartbeat!
   bootsnap
   brakeman
   bundler-audit

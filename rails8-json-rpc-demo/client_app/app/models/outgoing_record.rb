@@ -9,6 +9,7 @@ class OutgoingRecord < ApplicationRecord
   scope :sent, -> { where(status: 'sent') }
   scope :failed, -> { where(status: 'failed') }
   scope :by_type, ->(type) { where(record_type: type) }
+  scope :recent, -> { order(created_at: :desc) }
 
   # Instance methods
   def mark_as_sent!

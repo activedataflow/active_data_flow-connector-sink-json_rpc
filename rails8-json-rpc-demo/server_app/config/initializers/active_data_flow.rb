@@ -14,5 +14,12 @@ end
 
 # Register DataFlows after initialization
 Rails.application.config.after_initialize do
-  # DataFlows will be registered when they are defined
+  # Setup the JSON-RPC to Database DataFlow
+  begin
+    JsonRpcToDatabaseFlow.setup_flow
+    Rails.logger.info "Setup JsonRpcToDatabaseFlow"
+  rescue => e
+    Rails.logger.error "Failed to setup JsonRpcToDatabaseFlow: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+  end
 end

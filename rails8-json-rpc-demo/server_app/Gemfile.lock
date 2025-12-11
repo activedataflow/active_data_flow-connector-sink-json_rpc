@@ -9,7 +9,7 @@ PATH
 PATH
   remote: ../../submodules/active_data_flow-connector-sink-active_record
   specs:
-    active_data_flow-connector-sink-active_record (0.1.48)
+    active_data_flow-connector-sink-active_record (0.1.49)
       active_data_flow (~> 0.1)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
@@ -26,7 +26,7 @@ PATH
 PATH
   remote: ../../submodules/active_data_flow-runtime-heartbeat
   specs:
-    active_data_flow-runtime-heartbeat (0.1.48)
+    active_data_flow-runtime-heartbeat (0.1.49)
       active_data_flow (~> 0.1)
       rails (>= 6.0)
 
