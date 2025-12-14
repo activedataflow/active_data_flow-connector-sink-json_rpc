@@ -39,3 +39,9 @@
 [submodule "submodules/examples/rails8-juris"]
 	path = submodules/examples/rails8-juris
 	url = https://github.com/magenticmarketactualskill/rails8-juris.git
+[submodule "submodules/examples/sinatra-json-rpc-demo"]
+	path = submodules/examples/sinatra-json-rpc-demo
+	url = https://github.com/magenticmarketactualskill/sinatra-json-rpc-demo.git
+[submodule "submodules/examples/sinatra-json-rpc-ld"]
+	path = submodules/examples/sinatra-json-rpc-ld
+	url = https://github.com/magenticmarketactualskill/sinatra-json-rpc-ld.git
