@@ -45,3 +45,6 @@
 [submodule "submodules/examples/sinatra-json-rpc-ld"]
 	path = submodules/examples/sinatra-json-rpc-ld
 	url = https://github.com/magenticmarketactualskill/sinatra-json-rpc-ld.git
+[submodule "submodules/examples/rails8-json-rpc-demo"]
+	path = submodules/examples/rails8-json-rpc-demo
+	url = https://github.com/magenticmarketactualskill/rails8-json-rpc-demo.git
