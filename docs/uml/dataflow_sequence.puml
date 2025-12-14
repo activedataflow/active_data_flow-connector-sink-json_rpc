@@ -1,0 +1,44 @@
+@startuml ProductSyncFlow Sequence
+
+actor User
+participant "DataFlow\nHeartbeat" as Heartbeat
+participant ProductSyncFlow
+database "Product\nTable" as ProductDB
+participant "Transform\nLogic" as Transform
+database "ProductExport\nTable" as ExportDB
+
+User -> Heartbeat: POST /active_data_flow/data_flows/heartbeat
+activate Heartbeat
+
+Heartbeat -> ProductSyncFlow: trigger()
+activate ProductSyncFlow
+
+ProductSyncFlow -> ProductDB: SELECT * FROM products\nWHERE active = true
+activate ProductDB
+ProductDB --> ProductSyncFlow: active products
+deactivate ProductDB
+
+loop for each product
+  ProductSyncFlow -> Transform: transform(product)
+  activate Transform
+  
+  Transform -> Transform: price_cents = price * 100
+  Transform -> Transform: category_slug = category.parameterize
+  Transform -> Transform: exported_at = Time.current
+  
+  Transform --> ProductSyncFlow: transformed_data
+  deactivate Transform
+  
+  ProductSyncFlow -> ExportDB: INSERT/UPDATE product_exports
+  activate ExportDB
+  ExportDB --> ProductSyncFlow: success
+  deactivate ExportDB
+end
+
+ProductSyncFlow --> Heartbeat: completed
+deactivate ProductSyncFlow
+
+Heartbeat --> User: 200 OK
+deactivate Heartbeat
+
+@enduml
