@@ -22,11 +22,53 @@ It replaces the functionality of .kiro/specs/toParent.
 ### Available Implementations
 - `ActiveDataFlow::Runtime::Heartbeat`
 
+## Storage Backend Configuration
+
+ActiveDataFlow supports configurable storage backends for DataFlow and DataFlowRun persistence:
+
+### Available Storage Backends
+
+- **`:active_record (default)`**
+- **`:redcord_redis`**
+- **`:redcord_redis_emulator`**
+
+### Configuration
+
+Configure in `config/initializers/active_data_flow.rb`:
+
+```ruby
+ActiveDataFlow.configure do |config|
+  # Choose storage backend
+  config.storage_backend = :active_record  # default
+  
+  # For Redis backend, configure connection
+  config.redis_config = {
+    url: ENV['REDIS_URL'] || 'redis://localhost:6379/0'
+  }
+end
+```
+
+### Storage Backend Features
+
+| Backend | Database | Dependencies | Use Case |
+|---------|----------|--------------|----------|
+| `:active_record` | SQL (PostgreSQL, MySQL, SQLite) | Standard Rails | Complex queries, existing SQL infrastructure |
+| `:redcord_redis` | Redis server | redis, redcord gems | High-throughput, key-value operations |
+| `:redcord_redis_emulator` | Rails Solid Cache | redis-emulator, redcord gems | Redis-like storage without separate server |
+
+### Model Interface Consistency
+
+All storage backends provide the same model interface:
+- `ActiveDataFlow::DataFlow` - Pipeline configuration model
+- `ActiveDataFlow::DataFlowRun` - Execution instance model
+- Consistent methods, associations, scopes, and validations across backends
+
 ## Dependencies
 
 - Core gem: `active_data_flow`
 - Runtime gems: active_data_flow-runtime-heartbeat
 - Connector gems: active_data_flow-connector-source-active_record, active_data_flow-connector-sink-active_record
+- Storage backend gems (optional): `redis`, `redcord`, `redis-emulator`
 
 ## Glossary
 
