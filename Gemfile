@@ -35,3 +35,6 @@ gem 'inifile', '~> 3.0'
 
 gem 'redis-emulator', path: './vendor/redis-emulator'
 gem 'redcord', '~> 0.2.2'
+gem 'tree-meta', path: './vendor/thor-concerns'
+gem 'git-template', path: './vendor/git-template'
+gem 'file-set', path: './vendor/file-set'

@@ -7,7 +7,7 @@ PATH
 PATH
   remote: submodules/active_data_flow-connector-sink-active_record
   specs:
-    active_data_flow-connector-sink-active_record (0.1.48)
+    active_data_flow-connector-sink-active_record (0.1.53)
       active_data_flow (~> 0.1)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
@@ -15,7 +15,7 @@ PATH
 PATH
   remote: submodules/active_data_flow-connector-source-active_record
   specs:
-    active_data_flow-connector-source-active_record (0.1.48)
+    active_data_flow-connector-source-active_record (0.1.53)
       active_data_flow (~> 0.1)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
@@ -23,22 +23,35 @@ PATH
 PATH
   remote: submodules/active_data_flow-runtime-heartbeat
   specs:
-    active_data_flow-runtime-heartbeat (0.1.48)
+    active_data_flow-runtime-heartbeat (0.1.53)
       active_data_flow (~> 0.1)
       rails (>= 6.0)
 
 PATH
   remote: submodules/active_data_flow-runtime-redcord
   specs:
-    active_data_flow-runtime-redcord (0.1.47)
+    active_data_flow-runtime-redcord (0.1.52)
       active_data_flow (~> 0.1)
       rails (>= 6.0)
+
+PATH
+  remote: vendor/file-set
+  specs:
+    file-set (0.1.0)
+      inifile (~> 3.0)
 
 PATH
   remote: vendor/forker
   specs:
     forker (0.1.0)
       thor (~> 1.3)
+
+PATH
+  remote: vendor/git-template
+  specs:
+    git-template (0.1.1)
+      rails (>= 7.0)
+      thor (~> 1.0)
 
 PATH
   remote: vendor/git_steering
@@ -65,6 +78,12 @@ PATH
   remote: vendor/submoduler_parent
   specs:
     submoduler-submoduler_parent (0.2.0)
+
+PATH
+  remote: vendor/thor-concerns
+  specs:
+    tree-meta (0.1.0)
+      thor (~> 1.0)
 
 PATH
   remote: vendor/vendorer
@@ -365,7 +384,9 @@ DEPENDENCIES
   active_data_flow-runtime-heartbeat!
   active_data_flow-runtime-redcord!
   bundler
+  file-set!
   forker!
+  git-template!
   git_steering!
   inifile (~> 3.0)
   octokit (~> 4.0)
@@ -378,6 +399,7 @@ DEPENDENCIES
   rung!
   sqlite3 (>= 1.4)
   submoduler-submoduler_parent!
+  tree-meta!
   vendorer!
 
 BUNDLED WITH
