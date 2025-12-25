@@ -97,9 +97,10 @@ module ActiveDataFlow
     end
 
     # Abstract methods that subclasses must implement
-    def data_flow
-      raise NotImplementedError, "Subclasses must implement data_flow association"
-    end
+    # Note: data_flow is NOT defined here because:
+    # - ActiveRecord provides it via belongs_to (which uses GeneratedAssociationMethods)
+    # - Redcord provides it explicitly in the class
+    # Defining it here would override belongs_to due to Ruby's method lookup order
 
     protected
     

@@ -13,3 +13,6 @@ vendor/
 
 # Ignore hidden
 hide/
+
+# Ignore tmp directories globally
+**/tmp/
