@@ -19,3 +19,9 @@ hide/
 
 # Ignore tmp directories globally
 **/tmp/
+
+# Codev
+.agent-farm/
+.consult/
+codev/.update-hashes.json
+.builders/

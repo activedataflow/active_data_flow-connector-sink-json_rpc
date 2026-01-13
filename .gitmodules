@@ -1,35 +1,6 @@
-[submodule "submodules/active_data_flow-connector-source-active_record"]
-	path = submodules/active_data_flow-connector-source-active_record
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-source-active_record.git
-
-[submodule "submodules/active_data_flow-connector-sink-active_record"]
-	path = submodules/active_data_flow-connector-sink-active_record
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-sink-active_record.git
-
-[submodule "submodules/active_data_flow-runtime-heartbeat"]
-	path = submodules/active_data_flow-runtime-heartbeat
-	url = https://github.com/magenticmarketactualskill/active_data_flow-runtime-heartbeat.git
-[submodule "submodules/active_data_flow-runtime-redcord"]
-	path = submodules/active_data_flow-runtime-redcord
-	url = https://github.com/magenticmarketactualskill/active_data_flow-runtime-redcord
 [submodule "submodules/examples/rails8-newui"]
 	path = submodules/examples/rails8-newui
 	url = https://github.com/magenticmarketactualskill/rails8-newui.git
-[submodule "submodules/active_data_flow-connector-active_record"]
-	path = submodules/active_data_flow-connector-active_record
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-active_record
-[submodule "submodules/active_data_flow-connector-json_rpc"]
-	path = submodules/active_data_flow-connector-json_rpc
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-json_rpc
-[submodule "submodules/active_data_flow-connector-sink-json_rpc"]
-	path = submodules/active_data_flow-connector-sink-json_rpc
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-sink-json_rpc
-[submodule "submodules/active_data_flow-connector-source-json_rpc"]
-	path = submodules/active_data_flow-connector-source-json_rpc
-	url = https://github.com/magenticmarketactualskill/active_data_flow-connector-source-json_rpc
-[submodule "submodules/active_data_flow-runtime-heartbeat_app"]
-	path = submodules/active_data_flow-runtime-heartbeat_app
-	url = https://github.com/magenticmarketactualskill/active_data_flow-runtime-heartbeat_app
 [submodule "submodules/examples/rails8-demo"]
 	path = submodules/examples/rails8-demo
 	url = https://github.com/magenticmarketactualskill/active_data_flow-examples-rails8-demo
