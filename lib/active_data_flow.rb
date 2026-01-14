@@ -36,3 +36,18 @@ require "active_data_flow/concerns" if defined?(Rails)
 require "active_data_flow/scheduler" if defined?(Rails)
 require "active_data_flow/data_flows_folder" if defined?(Rails)
 
+# Load schedule DSL and registry (for SolidQueue integration)
+require "active_data_flow/schedule_dsl"
+require "active_data_flow/recurring_schedule_registry"
+require "active_data_flow/runtime_registry"
+
+# Load flow callbacks and bulk enqueue (for flow coordination)
+require "active_data_flow/flow_callbacks"
+require "active_data_flow/bulk_enqueue"
+
+# Load error handling, instrumentation, and metrics (Phase 5)
+require "active_data_flow/error_handling"
+require "active_data_flow/instrumentation"
+require "active_data_flow/metrics"
+require "active_data_flow/solid_queue_dashboard"
+

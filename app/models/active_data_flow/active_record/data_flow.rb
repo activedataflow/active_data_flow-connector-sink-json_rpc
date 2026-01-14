@@ -6,7 +6,8 @@ module ActiveDataFlow
   module ActiveRecord
     class DataFlow < ::ActiveRecord::Base
       include ActiveDataFlow::BaseDataFlow
-      
+      include GlobalID::Identification
+
       self.table_name = "active_data_flow_data_flows"
       
       # Associations

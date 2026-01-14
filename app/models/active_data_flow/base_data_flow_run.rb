@@ -96,6 +96,87 @@ module ActiveDataFlow
       data_flow.mark_run_failed!(self, error)
     end
 
+    # === Progress Tracking for Job Continuations ===
+
+    # Returns the current progress as a hash.
+    #
+    # @return [Hash] Progress information including step, cursor, records processed
+    def progress
+      return {} unless respond_to?(:metadata) && metadata.present?
+
+      {
+        step: metadata["current_step"],
+        cursor: metadata["cursor"],
+        records_processed: metadata["records_processed"],
+        resumptions: metadata["resumptions"]
+      }.compact
+    end
+
+    # Returns the current step name (for continuation jobs).
+    #
+    # @return [String, nil]
+    def current_step
+      metadata&.dig("current_step") if respond_to?(:metadata)
+    end
+
+    # Returns the current cursor position (for continuation jobs).
+    #
+    # @return [Object, nil]
+    def current_cursor
+      metadata&.dig("cursor") if respond_to?(:metadata)
+    end
+
+    # Returns the number of records processed so far.
+    #
+    # @return [Integer, nil]
+    def records_processed
+      metadata&.dig("records_processed") if respond_to?(:metadata)
+    end
+
+    # Returns how many times this job has been resumed.
+    #
+    # @return [Integer, nil]
+    def resumption_count
+      metadata&.dig("resumptions") if respond_to?(:metadata)
+    end
+
+    # Update progress information.
+    #
+    # @param step [String] Current step name
+    # @param cursor [Object] Current cursor position
+    # @param records [Integer] Records processed count
+    # @param resumptions [Integer] Resumption count
+    def update_progress(step: nil, cursor: nil, records: nil, resumptions: nil)
+      return unless respond_to?(:metadata=)
+
+      new_metadata = (metadata || {}).merge(
+        "current_step" => step,
+        "cursor" => cursor,
+        "records_processed" => records,
+        "resumptions" => resumptions,
+        "progress_updated_at" => Time.current.iso8601
+      ).compact
+
+      update(metadata: new_metadata)
+    end
+
+    # Check if this run is resumable (has progress that can be continued).
+    #
+    # @return [Boolean]
+    def resumable?
+      in_progress? && current_cursor.present?
+    end
+
+    # Returns progress as a percentage (if total is known).
+    #
+    # @param total [Integer] Total records to process
+    # @return [Float, nil] Percentage complete (0-100)
+    def progress_percentage(total:)
+      return nil unless records_processed && total.positive?
+
+      ((records_processed.to_f / total) * 100).round(2)
+    end
+
     # Abstract methods that subclasses must implement
     # Note: data_flow is NOT defined here because:
     # - ActiveRecord provides it via belongs_to (which uses GeneratedAssociationMethods)

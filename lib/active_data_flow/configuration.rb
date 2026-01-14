@@ -4,9 +4,11 @@ module ActiveDataFlow
   class Configuration
     include ActiveDataFlow::Result
 
-    attr_accessor :auto_load_data_flows, :log_level, :data_flows_path, :storage_backend, :redis_config
+    attr_accessor :auto_load_data_flows, :log_level, :data_flows_path, :storage_backend, :redis_config,
+                  :runtime_adapter
 
     SUPPORTED_BACKENDS = [:active_record, :redcord_redis, :redcord_redis_emulator].freeze
+    SUPPORTED_RUNTIMES = [:heartbeat, :active_job].freeze
 
     def initialize
       @auto_load_data_flows = true
@@ -14,6 +16,7 @@ module ActiveDataFlow
       @data_flows_path = "app/data_flows"
       @storage_backend = :active_record
       @redis_config = {}
+      @runtime_adapter = :heartbeat
     end
 
     # Validates the configured storage backend.
@@ -46,6 +49,30 @@ module ActiveDataFlow
 
     def redcord_redis_emulator?
       storage_backend == :redcord_redis_emulator
+    end
+
+    # Validates the configured runtime adapter.
+    #
+    # @return [Dry::Monads::Result] Success(adapter) or Failure[:configuration_error, {...}]
+    def validate_runtime_adapter
+      if SUPPORTED_RUNTIMES.include?(runtime_adapter)
+        Success(runtime_adapter)
+      else
+        Failure[:configuration_error, {
+          message: "Unsupported runtime adapter: #{runtime_adapter}. " \
+                   "Supported runtimes: #{SUPPORTED_RUNTIMES.join(', ')}",
+          supported: SUPPORTED_RUNTIMES,
+          provided: runtime_adapter
+        }]
+      end
+    end
+
+    def active_job_runtime?
+      runtime_adapter == :active_job
+    end
+
+    def heartbeat_runtime?
+      runtime_adapter == :heartbeat
     end
   end
 

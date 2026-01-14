@@ -32,9 +32,52 @@ module ActiveDataFlow
     def interval_seconds
       parsed_runtime&.dig('interval') || 3600
     end
-    
+
     def enabled?
       parsed_runtime&.dig('enabled') == true
+    end
+
+    # Returns the concurrency group for this flow (from runtime config).
+    #
+    # @return [String, nil] The concurrency group name
+    def concurrency_group
+      parsed_runtime&.dig('concurrency_group')
+    end
+
+    # Returns the concurrency limit for this flow (from runtime config).
+    #
+    # @return [Integer] The concurrency limit (default: 1)
+    def concurrency_limit
+      parsed_runtime&.dig('concurrency_limit') || 1
+    end
+
+    # Returns the concurrency group limit for this flow (from runtime config).
+    #
+    # @return [Integer, nil] The group concurrency limit
+    def concurrency_group_limit
+      parsed_runtime&.dig('concurrency_group_limit')
+    end
+
+    # Returns the concurrency key for SolidQueue.
+    #
+    # @return [String] The concurrency key
+    def concurrency_key
+      if concurrency_group.present?
+        "active_data_flow:group:#{concurrency_group}"
+      else
+        "active_data_flow:flow:#{name}"
+      end
+    end
+
+    # Returns the effective concurrency limit for this flow.
+    #
+    # @return [Integer] The effective limit
+    def effective_concurrency_limit
+      if concurrency_group.present? && concurrency_group_limit
+        concurrency_group_limit
+      else
+        concurrency_limit
+      end
     end
 
     def run_one(message)

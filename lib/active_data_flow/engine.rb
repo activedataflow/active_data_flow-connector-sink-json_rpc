@@ -27,6 +27,14 @@ module ActiveDataFlow
       ActiveDataFlow::StorageBackendLoader.log_configuration
     end
 
+    # Load ActiveJob runtime when ActiveJob is available
+    initializer "active_data_flow.active_job_runtime" do
+      ActiveSupport.on_load(:active_job) do
+        require "active_data_flow/runtime/active_job"
+        puts "[ActiveDataFlow] ActiveJob runtime loaded"
+      end
+    end
+
     initializer "active_data_flow.assets" do |app|
       app.config.assets.paths << root.join("app/assets")
       app.config.assets.precompile += %w[active_data_flow_manifest.js]
