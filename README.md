@@ -2,6 +2,15 @@
 
 A modular stream processing framework for Ruby inspired by Apache Flink. Provides a plugin-based architecture where a core gem defines abstract interfaces and separate gems provide concrete implementations for different runtimes and connectors.
 
+## Target Audience
+
+**Primary**: Ruby/Rails developers who need to implement stream processing, ETL pipelines, or data synchronization workflows within their Rails applications.
+
+**Secondary Personas**:
+- Data engineers working in Ruby-based organizations
+- Backend developers building data integration features
+- DevOps teams needing automated data flow management
+
 ## Installation
 
 Add this line to your application's Gemfile:
