@@ -1,6 +1,6 @@
 # ActiveDataFlow
 
-A modular stream processing framework for Ruby inspired by Apache Flink. Provides a plugin-based architecture where a core gem defines abstract interfaces and separate gems provide concrete implementations for different runtimes and connectors.
+A modular stream processing framework for Ruby inspired by Apache Flink. Provides a plugin-based architecture where a core gem defines abstract interfaces and some commonly used components. Separate gems provide implementations for additional runtimes and connectors.
 
 ## Target Audience
 
@@ -128,16 +128,10 @@ This creates `app/data_flows/user_sync_flow.rb` where you can define your data f
 Data flows are automatically registered when the application starts. Define a class with a `register` method:
 
 ```ruby
-# Option 1: Using named scopes (serializable - recommended for persistence)
+# Using named scopes (serializable - recommended for persistence)
 source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
   model_class: User,
   scope_name: :active,  # Calls User.active
-  batch_size: 100
-)
-
-# Option 2: Using a scope directly (for immediate use, not serializable)
-source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
-  scope: User.where(active: true).order(:created_at),
   batch_size: 100
 )
 
@@ -159,18 +153,9 @@ ActiveDataFlow::DataFlow.create!(
 )
 ```
 
-**Note:** For data flows that need to be persisted and reloaded, use the `model_class` + `scope_name` approach. Direct scopes work for immediate execution but cannot be fully serialized.
-
 ## Architecture
 
-ActiveDataFlow follows a plugin-based architecture:
-
-- **Core gem** (`active_data_flow`): Provides Rails engine and abstract interfaces
-- **Connector gems**: Implement data sources and sinks
-  - `active_data_flow-connector-source-active_record`
-  - `active_data_flow-connector-sink-active_record`
-- **Runtime gems**: Implement execution environments
-  - `active_data_flow-runtime-heartbeat`
+ActiveDataFlow follows a plugin-based architecture allowing additional component integrations.
 
 ## Development
 
