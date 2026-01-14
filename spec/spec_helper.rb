@@ -2,6 +2,7 @@
 
 require "bundler/setup"
 require "active_record"
+require "globalid"
 require "active_data_flow"
 require "fileutils"
 require "tmpdir"
@@ -11,6 +12,9 @@ ActiveRecord::Base.establish_connection(
   adapter: 'sqlite3',
   database: ':memory:'
 )
+
+# Configure GlobalID for testing
+GlobalID.app = 'activedataflow-test'
 
 # Create tables for testing
 ActiveRecord::Schema.define do
