@@ -128,29 +128,45 @@ This creates `app/data_flows/user_sync_flow.rb` where you can define your data f
 Data flows are automatically registered when the application starts. Define a class with a `register` method:
 
 ```ruby
-# Using named scopes (serializable - recommended for persistence)
-source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
-  model_class: User,
-  scope_name: :active,  # Calls User.active
-  batch_size: 100
-)
+class SourceDataStage < FunctionalTaskSupervisor::Stage
+  self.instance = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
+    model_class: User,
+    scope_name: :active,
+    batch_size: 100
+  )
 
-sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
-  model_class: UserBackup,
-  batch_size: 100
-)
+  def perform_work
+    Success(data: connector.fetch)
+  end
+end
 
-runtime = ActiveDataFlow::Runtime::Heartbeat.new(
-  interval: 60
-)
+class ProcessDataStage < FunctionalTaskSupervisor::Stage
+  def perform_work
+    # Transform data from previous stage
+    transformed = input_data.map { |record| record.attributes }
+    Success(data: transformed)
+  end
+end
 
-# Create the data flow with instances
-ActiveDataFlow::DataFlow.create!(
-  name: "user_sync",
-  source: source,
-  sink: sink,
-  runtime: runtime
-)
+class SinkDataStage < FunctionalTaskSupervisor::Stage
+  self.instance = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
+    model_class: UserBackup,
+    batch_size: 100
+  )
+
+  def perform_work
+    connector.write(input_data)
+    Success(data: { records_written: input_data.size })
+  end
+end
+
+# Create and execute task
+task = FunctionalTaskSupervisor::Task.new
+task.add_stage(SourceDataStage.new("source"))
+task.add_stage(ProcessDataStage.new("process"))
+task.add_stage(SinkDataStage.new("sink"))
+
+result = task.run
 ```
 
 ## Architecture

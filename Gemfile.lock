@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/activedataflow/functional_task_supervisor.git
+  revision: 8920f19cc6858c2d34d8f9110b66ac0bc44b31e7
+  specs:
+    functional_task_supervisor (0.1.0)
+      dry-effects (~> 0.4)
+      dry-monads (~> 1.6)
+
 PATH
   remote: .
   specs:
@@ -5,6 +13,7 @@ PATH
       activerecord (>= 6.0)
       activesupport (>= 6.0)
       dry-monads (~> 1.6)
+      functional_task_supervisor
       rails (>= 6.0)
 
 PATH
@@ -163,6 +172,14 @@ GEM
       concurrent-ruby (~> 1.0)
       logger
       zeitwerk (~> 2.6)
+    dry-effects (0.5.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.1)
+      dry-inflector (~> 1.1)
+      dry-initializer (~> 3.2)
+      zeitwerk (~> 2.6)
+    dry-inflector (1.3.1)
+    dry-initializer (3.2.0)
     dry-monads (1.9.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.1)
@@ -394,6 +411,7 @@ DEPENDENCIES
   bundler
   file-set!
   forker!
+  functional_task_supervisor!
   git-template!
   git_steering!
   inifile (~> 3.0)

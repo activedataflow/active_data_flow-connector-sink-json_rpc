@@ -19,6 +19,9 @@ module ActiveDataFlow
   module Message; end
 end
 
+# Load FunctionalTaskSupervisor extensions
+require "active_data_flow/stage_extensions"
+
 # Load base classes
 require "active_data_flow/runtime/base"
 require "active_data_flow/runtime/flow_executor"
