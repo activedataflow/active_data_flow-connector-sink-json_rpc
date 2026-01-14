@@ -25,6 +25,7 @@ gem 'jimson', '~> 0.10'  # Required for JSON-RPC connectors
 gem 'rainbow', '~> 3.0'
 gem 'octokit', '~> 4.0'
 gem 'inifile', '~> 3.0'
+gem 'faraday-retry', '~> 2.0'  # Required for Faraday v2.0+ retry middleware
 
 gem 'redis-emulator', path: './vendor/redis-emulator'
 gem 'redcord', '~> 0.2.2'
