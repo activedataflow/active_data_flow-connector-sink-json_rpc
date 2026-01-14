@@ -185,6 +185,17 @@ if source.success?
 end
 ```
 
+### Complete Example
+
+For a comprehensive example including error handling, transformation logic, and ActiveDataFlow registration, see [`examples/user_sync_flow.rb`](examples/user_sync_flow.rb).
+
+This example demonstrates:
+- Three-stage pipeline (fetch → transform → write)
+- Class-level connector storage with `self.instance`
+- Data passing between stages via `attr_accessor`
+- Error handling with dry-monads Result types
+- Registration for scheduled execution
+
 ## Architecture
 
 ActiveDataFlow follows a plugin-based architecture allowing additional component integrations.
