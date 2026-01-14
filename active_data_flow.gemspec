@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rails", ">= 6.0"
   spec.add_runtime_dependency "activesupport", ">= 6.0"
   spec.add_runtime_dependency "activerecord", ">= 6.0"
+  spec.add_runtime_dependency "functional_task_supervisor"
 
   # === Optional Dependencies (documented, not enforced) ===
   # These are required only if using specific connectors/runtimes.

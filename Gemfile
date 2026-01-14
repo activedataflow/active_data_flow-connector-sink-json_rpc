@@ -10,6 +10,9 @@ gem 'submoduler-submoduler_parent', path: 'vendor/submoduler_parent'
 # Load dependencies from gemspec
 gemspec
 
+# FunctionalTaskSupervisor for stage-based task workflows
+gem 'functional_task_supervisor', git: 'https://github.com/activedataflow/functional_task_supervisor.git'
+
 gem 'git_steering', path: 'vendor/git_steering'
 gem 'rung', path: './vendor/rung'
 gem 'vendorer', path: 'vendor/vendorer'

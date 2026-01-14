@@ -119,33 +119,47 @@ This creates `app/data_flows/user_sync_flow.rb` where you can define your data f
 Data flows are automatically registered when the application starts. Define a class with a `register` method:
 
 ```ruby
-# Option 1: Using named scopes (serializable - recommended for persistence)
-source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
-  model_class: User,
-  scope_name: :active,  # Calls User.active
-  batch_size: 100
-)
 
-# Option 2: Using a scope directly (for immediate use, not serializable)
-source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
-  scope: User.where(active: true).order(:created_at),
-  batch_size: 100
-)
+class SourceDataStage < FunctionalTaskSupervisor::Stage
+  def perform
+    source = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
+      model_class: User,
+      scope_name: :active,  # Calls User.active
+      batch_size: 100 
+    )
+  end
+end
 
-sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
-  model_class: UserBackup,
-  batch_size: 100
-)
+class ProcessDataStage < FunctionalTaskSupervisor::Stage
+  def perform
+    sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
+      model_class: UserBackup,
+      batch_size: 100
+    )
+  end
+end
+
+class SinkDataStage < FunctionalTaskSupervisor::Stage
+  def perform
+    sink = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
+      model_class: UserBackup,
+      batch_size: 100
+    )
+  end
+end
+
+# Create task
+task = SourceDataStage::Task.new
+task.add_stage(ProcessDataStage.new)
+task.add_stage(SinkDataStage.new)
 
 runtime = ActiveDataFlow::Runtime::Heartbeat.new(
   interval: 60
 )
 
 # Create the data flow with instances
-ActiveDataFlow::DataFlow.create!(
-  name: "user_sync",
-  source: source,
-  sink: sink,
+ActiveDataFlow::DataFlow.create_task(
+  task: task,
   runtime: runtime
 )
 ```
