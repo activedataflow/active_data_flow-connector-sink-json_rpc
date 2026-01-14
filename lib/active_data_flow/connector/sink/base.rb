@@ -24,7 +24,7 @@ module ActiveDataFlow
             
             # Act on collision detection results
             case result_enum
-            when ActiveDataFlow::Connector::Sink::Collision::REDUNDENT_TRANSFORMED_RECORD
+            when ActiveDataFlow::Connector::Sink::Collision::REDUNDANT_TRANSFORMED_RECORD
               # Skip writing - record already exists with same data
               Rails.logger.debug("[DataFlow.sink] Skipping redundant record")
               return

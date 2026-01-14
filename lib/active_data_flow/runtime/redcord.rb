@@ -17,38 +17,29 @@ require 'active_record'
 require 'active_support'
 require 'active_data_flow'
 require 'active_data_flow/runtime/base'
+require 'active_data_flow/runtime/flow_executor'
+require 'active_data_flow/runtime/flow_reschedule'
+require 'active_data_flow/runtime/module_loader'
+require 'active_data_flow/configuration_base'
 
 require_relative 'redcord/configuration'
 require_relative 'redcord/flow_executor'
-require_relative 'redcord/flow_reschedule'
 
 module ActiveDataFlow
   module Runtime
     module Redcord
+      extend ActiveDataFlow::ConfigurationBase
+
       class << self
-        attr_writer :configuration
-
-        def configuration
-          @configuration ||= Configuration.new
-        end
-
         alias_method :config, :configuration
-
-        def configure
-          yield(configuration)
-        end
-
-        def reset_configuration!
-          @configuration = Configuration.new
-        end
       end
     end
   end
 end
 
-# Load models and controllers when Rails is available
-if defined?(Rails)
-  require_relative '../../../app/models/active_data_flow/runtime/redcord/data_flow'
-  require_relative '../../../app/models/active_data_flow/runtime/redcord/data_flow_run'
-  require_relative '../../../app/controllers/active_data_flow/runtime/redcord/data_flows_controller'
-end
+# Load models and controllers via ModuleLoader
+ActiveDataFlow::Runtime::ModuleLoader.load_backend_files(
+  "redcord",
+  models: %w[data_flow data_flow_run],
+  controllers: %w[data_flows_controller]
+)

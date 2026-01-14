@@ -2,6 +2,7 @@
 
 require "active_data_flow/connector/json_rpc"
 require "active_data_flow/connector/sink/base"
+require "active_data_flow/connector/sink/buffer"
 
 module ActiveDataFlow
   module Connector
@@ -25,8 +26,7 @@ module ActiveDataFlow
             url: url,
             options: client_options
           )
-          @buffer = []
-          @mutex = Mutex.new
+          @buffer = Buffer.new(batch_size: batch_size)
 
           # Store serializable representation
           super(
@@ -69,33 +69,14 @@ module ActiveDataFlow
         # @param record [Hash] The record to buffer
         # @return [Dry::Monads::Result, nil] Result if buffer was flushed, nil otherwise
         def buffer_write(record)
-          @mutex.synchronize do
-            @buffer << record
-
-            if @buffer.size >= @batch_size
-              records = @buffer.dup
-              @buffer.clear
-              return write_batch(records)
-            end
-          end
-
-          nil
+          @buffer.add(record) { |records| write_batch(records) }
         end
 
         # Flush any buffered records
         #
         # @return [Dry::Monads::Result, nil] Result or nil if buffer was empty
         def flush
-          records = nil
-
-          @mutex.synchronize do
-            return nil if @buffer.empty?
-
-            records = @buffer.dup
-            @buffer.clear
-          end
-
-          write_batch(records)
+          @buffer.flush { |records| write_batch(records) }
         end
 
         # Close the sink and flush any remaining records
@@ -123,7 +104,7 @@ module ActiveDataFlow
         #
         # @return [Integer] Number of buffered records
         def buffer_size
-          @mutex.synchronize { @buffer.size }
+          @buffer.size
         end
 
         # Deserialize from JSON

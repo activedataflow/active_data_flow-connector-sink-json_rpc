@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_data_flow/connector/json_rpc'
+require 'active_data_flow/connector/json_rpc/server_lifecycle'
 require 'active_data_flow/connector/source/base'
 
 module ActiveDataFlow
@@ -9,7 +10,7 @@ module ActiveDataFlow
       # JSON-RPC Source Connector
       # Receives data via JSON-RPC server and provides it as a source for data flows
       class JsonRpcSource < ::ActiveDataFlow::Connector::Source::Base
-        attr_reader :host, :port, :handler, :server, :server_thread
+        attr_reader :host, :port, :handler
 
         # Initialize a new JSON-RPC source
         # @param host [String] The host to bind the server to (default: '0.0.0.0')
@@ -20,9 +21,11 @@ module ActiveDataFlow
           @port = port
           @handler_class = handler_class || ActiveDataFlow::Connector::JsonRpc::ServerHandler
           @handler = @handler_class.new
-          @server = nil
-          @server_thread = nil
-          @running = false
+          @server_lifecycle = JsonRpc::ServerLifecycle.new(
+            host: host,
+            port: port,
+            handler: @handler
+          )
 
           # Store serializable representation
           super(
@@ -33,40 +36,21 @@ module ActiveDataFlow
         end
 
         # Start the JSON-RPC server
-        # @return [void]
+        # @return [Boolean] true if server started successfully
         def start_server
-          return if @running
-
-          @server = Jimson::Server.new(@handler, host: @host, port: @port)
-          @server_thread = Thread.new do
-            begin
-              @server.start
-            rescue => e
-              Rails.logger.error("JSON-RPC Server error: #{e.message}") if defined?(Rails)
-              puts "JSON-RPC Server error: #{e.message}"
-            end
-          end
-
-          @running = true
-
-          # Give server time to start
-          sleep 0.5
+          @server_lifecycle.start
         end
 
         # Stop the JSON-RPC server
         # @return [void]
         def stop_server
-          return unless @running
-
-          @server&.stop
-          @server_thread&.kill
-          @running = false
+          @server_lifecycle.stop
         end
 
         # Check if server is running
         # @return [Boolean]
         def running?
-          @running
+          @server_lifecycle.running?
         end
 
         # Iterate through received records
@@ -121,7 +105,7 @@ module ActiveDataFlow
         # Get server URL
         # @return [String] The server URL
         def server_url
-          "http://#{host}:#{port}"
+          @server_lifecycle.url
         end
 
         # Get current queue size

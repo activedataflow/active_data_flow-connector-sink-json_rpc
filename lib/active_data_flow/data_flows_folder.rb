@@ -84,21 +84,22 @@ module ActiveDataFlow
       def register_flow_from_file(file)
         load file
 
-        class_name = File.basename(file, ".rb").camelize
+        class_name = derive_class_name(file)
+        flow_class = safe_constantize(class_name)
 
-        unless Object.const_defined?(class_name)
+        unless flow_class
           return Failure[:load_error, {
-            message: "Class #{class_name} not defined after loading file",
+            message: "Class #{class_name} not defined after loading #{File.basename(file)}. " \
+                     "Ensure the class name matches the file name.",
             file: file,
             class_name: class_name
           }]
         end
 
-        flow_class = Object.const_get(class_name)
-
         unless flow_class.respond_to?(:register)
           return Failure[:load_error, {
-            message: "Class #{class_name} does not respond to :register",
+            message: "Class #{class_name} must implement .register class method. " \
+                     "Add 'def self.register; ...; end' to your flow class.",
             file: file,
             class_name: class_name
           }]
@@ -116,6 +117,29 @@ module ActiveDataFlow
           file: file,
           backtrace: e.backtrace.first(5)
         }]
+      end
+
+      # Derives the expected class name from a file path.
+      #
+      # @param file [String] Path to the file
+      # @return [String] Expected class name
+      def derive_class_name(file)
+        File.basename(file, ".rb").camelize
+      end
+
+      # Safely converts a string to a constant, returning nil if not found.
+      # Uses ActiveSupport's safe_constantize if available, otherwise falls back.
+      #
+      # @param class_name [String] The class name to constantize
+      # @return [Class, nil] The class or nil if not found
+      def safe_constantize(class_name)
+        if class_name.respond_to?(:safe_constantize)
+          class_name.safe_constantize
+        elsif Object.const_defined?(class_name)
+          Object.const_get(class_name)
+        end
+      rescue NameError
+        nil
       end
     end
   end

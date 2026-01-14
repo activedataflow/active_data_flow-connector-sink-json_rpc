@@ -15,6 +15,7 @@ end
 
 require 'active_support'
 require 'active_data_flow'
+require 'active_data_flow/configuration_base'
 
 require_relative 'json_rpc/configuration'
 require_relative 'json_rpc/server_handler'
@@ -23,23 +24,9 @@ require_relative 'json_rpc/client_wrapper'
 module ActiveDataFlow
   module Connector
     module JsonRpc
+      extend ActiveDataFlow::ConfigurationBase
+
       class Error < StandardError; end
-
-      class << self
-        attr_writer :configuration
-
-        def configuration
-          @configuration ||= Configuration.new
-        end
-
-        def configure
-          yield(configuration)
-        end
-
-        def reset_configuration!
-          @configuration = Configuration.new
-        end
-      end
     end
   end
 end
