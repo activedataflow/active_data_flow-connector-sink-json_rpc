@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe ActiveDataFlow::StorageBackendLoader do
-  describe ".validate_dependencies!" do
+  describe ".validate_dependencies" do
     context "with :active_record backend" do
       before do
         ActiveDataFlow.configure do |config|
@@ -15,8 +15,9 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
         ActiveDataFlow.reset_configuration!
       end
 
-      it "does not raise error" do
-        expect { described_class.validate_dependencies! }.not_to raise_error
+      it "returns Success" do
+        result = described_class.validate_dependencies
+        expect(result).to be_success
       end
     end
 
@@ -31,13 +32,12 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
         ActiveDataFlow.reset_configuration!
       end
 
-      it "raises DependencyError if redcord gem is not available" do
+      it "returns Failure[:dependency_error] if redcord gem is not available" do
         allow(described_class).to receive(:require).with("redcord").and_raise(LoadError)
 
-        expect { described_class.validate_dependencies! }.to raise_error(
-          ActiveDataFlow::DependencyError,
-          /redcord.*gem.*required/
-        )
+        result = described_class.validate_dependencies
+        expect(result).to be_failure(:dependency_error)
+        expect(result).to have_failure_message(/redcord.*gem.*required/i)
       end
     end
 
@@ -52,14 +52,13 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
         ActiveDataFlow.reset_configuration!
       end
 
-      it "raises DependencyError if redis-emulator gem is not available" do
+      it "returns Failure[:dependency_error] if redis-emulator gem is not available" do
         allow(described_class).to receive(:require).with("redcord").and_return(true)
         allow(described_class).to receive(:require).with("redis/emulator").and_raise(LoadError)
 
-        expect { described_class.validate_dependencies! }.to raise_error(
-          ActiveDataFlow::DependencyError,
-          /redis-emulator.*gem.*required/
-        )
+        result = described_class.validate_dependencies
+        expect(result).to be_failure(:dependency_error)
+        expect(result).to have_failure_message(/redis-emulator.*gem.*required/i)
       end
     end
   end
@@ -129,32 +128,38 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
           expect(ActiveDataFlow.configuration.storage_backend).to eq(backend)
         end
 
-        it "validates storage backend without error" do
+        it "validates storage backend with Success" do
           ActiveDataFlow.configure do |config|
             config.storage_backend = backend
           end
 
-          expect { ActiveDataFlow.configuration.validate_storage_backend! }.not_to raise_error
+          result = ActiveDataFlow.configuration.validate_storage_backend
+          expect(result).to be_success(backend)
         end
       end
     end
   end
 
   describe ".initialize_redis_connection" do
-    let(:redis_client) { instance_double(Redis) }
+    let(:redis_client) { double("Redis::Client", ping: "PONG") }
     let(:redcord_config) { double("Redcord::Config") }
     let(:redcord_class) { double("Redcord") }
 
+    # Define Redis as a proper module with CannotConnectError and new method
     before do
+      redis_mod = Module.new do
+        def self.new(**args); end
+      end
+      redis_mod.const_set(:CannotConnectError, Class.new(StandardError))
+      stub_const("Redis", redis_mod)
       stub_const("Redcord", redcord_class)
       allow(Redis).to receive(:new).and_return(redis_client)
-      allow(redis_client).to receive(:ping).and_return("PONG")
       allow(redcord_class).to receive(:configure).and_yield(redcord_config)
       allow(redcord_config).to receive(:redis=)
     end
 
     context "with URL configuration" do
-      it "creates Redis client with URL" do
+      it "returns Success with Redis client" do
         ActiveDataFlow.configure do |config|
           config.redis_config = { url: "redis://example.com:6379/1" }
         end
@@ -166,7 +171,9 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
           db: nil
         ).and_return(redis_client)
 
-        described_class.initialize_redis_connection
+        result = described_class.initialize_redis_connection
+        expect(result).to be_success
+        expect(result.value!).to eq(redis_client)
       end
     end
 
@@ -183,7 +190,8 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
           db: 2
         ).and_return(redis_client)
 
-        described_class.initialize_redis_connection
+        result = described_class.initialize_redis_connection
+        expect(result).to be_success
       end
     end
 
@@ -200,18 +208,18 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
           db: nil
         ).and_return(redis_client)
 
-        described_class.initialize_redis_connection
+        result = described_class.initialize_redis_connection
+        expect(result).to be_success
       end
     end
 
     context "when connection fails" do
-      it "raises ConnectionError with clear message" do
+      it "returns Failure[:connection_error] with clear message" do
         allow(redis_client).to receive(:ping).and_raise(Redis::CannotConnectError.new("Connection refused"))
 
-        expect { described_class.initialize_redis_connection }.to raise_error(
-          ActiveDataFlow::ConnectionError,
-          /Failed to connect to Redis.*Connection refused/
-        )
+        result = described_class.initialize_redis_connection
+        expect(result).to be_failure(:connection_error)
+        expect(result).to have_failure_message(/Failed to connect to Redis.*Connection refused/)
       end
     end
   end
@@ -232,10 +240,12 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
       allow(redcord_config).to receive(:redis=)
     end
 
-    it "creates Redis::Emulator with Rails.cache backend" do
+    it "returns Success with Redis::Emulator" do
       expect(redis_emulator_class).to receive(:new).with(backend: rails_cache)
 
-      described_class.initialize_redis_emulator
+      result = described_class.initialize_redis_emulator
+      expect(result).to be_success
+      expect(result.value!).to eq(redis_emulator)
     end
 
     it "configures Redcord to use Redis::Emulator" do

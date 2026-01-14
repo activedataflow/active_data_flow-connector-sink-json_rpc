@@ -27,21 +27,24 @@ RSpec.describe ActiveDataFlow::Configuration do
     end
   end
 
-  describe "#validate_storage_backend!" do
+  describe "#validate_storage_backend" do
     context "with supported backends" do
-      it "accepts :active_record" do
+      it "returns Success for :active_record" do
         config.storage_backend = :active_record
-        expect { config.validate_storage_backend! }.not_to raise_error
+        result = config.validate_storage_backend
+        expect(result).to be_success(:active_record)
       end
 
-      it "accepts :redcord_redis" do
+      it "returns Success for :redcord_redis" do
         config.storage_backend = :redcord_redis
-        expect { config.validate_storage_backend! }.not_to raise_error
+        result = config.validate_storage_backend
+        expect(result).to be_success(:redcord_redis)
       end
 
-      it "accepts :redcord_redis_emulator" do
+      it "returns Success for :redcord_redis_emulator" do
         config.storage_backend = :redcord_redis_emulator
-        expect { config.validate_storage_backend! }.not_to raise_error
+        result = config.validate_storage_backend
+        expect(result).to be_success(:redcord_redis_emulator)
       end
     end
 
@@ -49,22 +52,32 @@ RSpec.describe ActiveDataFlow::Configuration do
     context "with unsupported backends" do
       let(:invalid_backends) { [:mysql, :postgres, :mongodb, :invalid, :foo, :bar, :redis, :memcached] }
 
-      it "rejects all unsupported storage backends with clear error message" do
+      it "returns Failure[:configuration_error] for all unsupported storage backends" do
         invalid_backends.each do |backend|
           config.storage_backend = backend
-          expect { config.validate_storage_backend! }.to raise_error(
-            ActiveDataFlow::ConfigurationError,
-            /Unsupported storage backend: #{backend}.*Supported backends:/
-          )
+          result = config.validate_storage_backend
+          expect(result).to be_failure(:configuration_error)
         end
       end
 
-      it "includes list of supported backends in error message" do
+      it "includes clear error message in failure" do
         config.storage_backend = :invalid
-        expect { config.validate_storage_backend! }.to raise_error(
-          ActiveDataFlow::ConfigurationError,
-          /active_record.*redcord_redis.*redcord_redis_emulator/
-        )
+        result = config.validate_storage_backend
+        expect(result).to have_failure_message(/Unsupported storage backend: invalid/)
+      end
+
+      it "includes list of supported backends in failure message" do
+        config.storage_backend = :invalid
+        result = config.validate_storage_backend
+        expect(result).to have_failure_message(/active_record.*redcord_redis.*redcord_redis_emulator/)
+      end
+
+      it "includes provided and supported backends in failure details" do
+        config.storage_backend = :invalid
+        result = config.validate_storage_backend
+        failure_type, details = result.failure
+        expect(details[:provided]).to eq(:invalid)
+        expect(details[:supported]).to eq([:active_record, :redcord_redis, :redcord_redis_emulator])
       end
     end
   end

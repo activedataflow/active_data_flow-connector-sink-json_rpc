@@ -2,6 +2,7 @@
 
 require "active_data_flow/version"
 require "active_data_flow/errors"
+require "active_data_flow/result"
 require "active_data_flow/configuration"
 require "active_data_flow/storage_backend_loader"
 require "active_data_flow/engine"

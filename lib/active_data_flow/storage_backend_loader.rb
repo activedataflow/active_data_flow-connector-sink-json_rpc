@@ -3,22 +3,28 @@
 module ActiveDataFlow
   class StorageBackendLoader
     class << self
+      include ActiveDataFlow::Result
+
+      # Loads and initializes the configured storage backend.
+      #
+      # @return [Dry::Monads::Result] Success(:loaded) or Failure with error details
       def load!
         config = ActiveDataFlow.configuration
-        config.validate_storage_backend!
+        result = yield config.validate_storage_backend
 
         case config.storage_backend
         when :active_record
-          load_active_record_backend
+          yield load_active_record_backend
         when :redcord_redis
-          load_redcord_backend
-          initialize_redis_connection
+          yield load_redcord_backend
+          yield initialize_redis_connection
         when :redcord_redis_emulator
-          load_redcord_backend
-          initialize_redis_emulator
+          yield load_redcord_backend
+          yield initialize_redis_emulator
         end
 
         log_configuration
+        Success(:loaded)
       end
 
       def setup_autoload_paths(engine)
@@ -38,19 +44,25 @@ module ActiveDataFlow
         end
       end
 
-      def validate_dependencies!
+      # Validates all dependencies for the current backend.
+      #
+      # @return [Dry::Monads::Result] Success(:valid) or Failure with error details
+      def validate_dependencies
         config = ActiveDataFlow.configuration
 
         case config.storage_backend
         when :active_record
-          validate_active_record_dependencies!
+          validate_active_record_dependencies
         when :redcord_redis
-          validate_redcord_dependencies!
+          validate_redcord_dependencies
         when :redcord_redis_emulator
-          validate_redis_emulator_dependencies!
+          validate_redis_emulator_dependencies
         end
       end
 
+      # Initializes connection to Redis server.
+      #
+      # @return [Dry::Monads::Result] Success(redis_client) or Failure[:connection_error, {...}]
       def initialize_redis_connection
         config = ActiveDataFlow.configuration.redis_config
 
@@ -67,15 +79,24 @@ module ActiveDataFlow
 
         # Validate connection
         redis_client.ping
+        Success(redis_client)
       rescue Redis::CannotConnectError => e
-        raise ActiveDataFlow::ConnectionError,
-              "Failed to connect to Redis: #{e.message}. " \
-              "Ensure Redis is running and accessible."
+        Failure[:connection_error, {
+          message: "Failed to connect to Redis: #{e.message}. " \
+                   "Ensure Redis is running and accessible.",
+          config: config
+        }]
       rescue StandardError => e
-        raise ActiveDataFlow::ConnectionError,
-              "Failed to connect to Redis: #{e.message}"
+        Failure[:connection_error, {
+          message: "Failed to connect to Redis: #{e.message}",
+          exception_class: e.class.name,
+          config: config
+        }]
       end
 
+      # Initializes Redis emulator using Rails.cache.
+      #
+      # @return [Dry::Monads::Result] Success(redis_emulator)
       def initialize_redis_emulator
         redis_emulator = Redis::Emulator.new(
           backend: Rails.cache
@@ -86,6 +107,7 @@ module ActiveDataFlow
         end
 
         # No connectivity check needed - uses Rails.cache
+        Success(redis_emulator)
       end
 
       def log_configuration
@@ -103,37 +125,63 @@ module ActiveDataFlow
 
       private
 
+      # Loads ActiveRecord backend.
+      #
+      # @return [Dry::Monads::Result] Success(:active_record)
       def load_active_record_backend
-        validate_active_record_dependencies!
+        result = yield validate_active_record_dependencies
         # ActiveRecord models will be loaded automatically via Rails autoloading
+        Success(:active_record)
       end
 
+      # Loads Redcord backend.
+      #
+      # @return [Dry::Monads::Result] Success(:redcord) or Failure
       def load_redcord_backend
-        validate_redcord_dependencies!
+        result = yield validate_redcord_dependencies
         # Redcord models will be loaded automatically via Rails autoloading
+        Success(:redcord)
       end
 
-      def validate_active_record_dependencies!
+      # Validates ActiveRecord dependencies.
+      #
+      # @return [Dry::Monads::Result] Success(:valid)
+      def validate_active_record_dependencies
         # ActiveRecord is part of Rails, so no additional validation needed
-        true
+        Success(:valid)
       end
 
-      def validate_redcord_dependencies!
+      # Validates Redcord gem is available.
+      #
+      # @return [Dry::Monads::Result] Success(:valid) or Failure[:dependency_error, {...}]
+      def validate_redcord_dependencies
         require "redcord"
+        Success(:valid)
       rescue LoadError
-        raise ActiveDataFlow::DependencyError,
-              "The 'redcord' gem is required for :redcord_redis backend. " \
-              "Add 'gem \"redcord\"' to your Gemfile and run 'bundle install'."
+        Failure[:dependency_error, {
+          message: "The 'redcord' gem is required for :redcord_redis backend. " \
+                   "Add 'gem \"redcord\"' to your Gemfile and run 'bundle install'.",
+          gem: "redcord",
+          backend: :redcord_redis
+        }]
       end
 
-      def validate_redis_emulator_dependencies!
-        validate_redcord_dependencies!
+      # Validates Redis emulator gem is available.
+      #
+      # @return [Dry::Monads::Result] Success(:valid) or Failure[:dependency_error, {...}]
+      def validate_redis_emulator_dependencies
+        redcord_result = validate_redcord_dependencies
+        return redcord_result if redcord_result.failure?
 
         require "redis/emulator"
+        Success(:valid)
       rescue LoadError
-        raise ActiveDataFlow::DependencyError,
-              "The 'redis-emulator' gem is required for :redcord_redis_emulator backend. " \
-              "Add 'gem \"redis-emulator\"' to your Gemfile and run 'bundle install'."
+        Failure[:dependency_error, {
+          message: "The 'redis-emulator' gem is required for :redcord_redis_emulator backend. " \
+                   "Add 'gem \"redis-emulator\"' to your Gemfile and run 'bundle install'.",
+          gem: "redis-emulator",
+          backend: :redcord_redis_emulator
+        }]
       end
     end
   end

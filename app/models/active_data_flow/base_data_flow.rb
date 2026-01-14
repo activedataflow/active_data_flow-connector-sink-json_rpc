@@ -6,6 +6,7 @@ module ActiveDataFlow
   module BaseDataFlow
     def self.included(base)
       base.extend(ClassMethods)
+      base.include(ActiveDataFlow::Result)
     end
     
     module ClassMethods
@@ -74,11 +75,21 @@ module ActiveDataFlow
       raise
     end
 
+    # Executes the data flow.
+    #
+    # @return [Dry::Monads::Result] Success or Failure with error details
     def run
       # Cast to flow_class if needed to ensure we have the correct runtime
       flow_instance = cast_to_flow_class_if_needed
-      flow_instance.send(:prepare_run)
-      flow_instance.run_batch
+      result = flow_instance.send(:prepare_run)
+
+      case result
+      in Dry::Monads::Result::Failure
+        return result
+      in Dry::Monads::Result::Success
+        flow_instance.run_batch
+        Success(:completed)
+      end
     end
 
     def heartbeat_event
@@ -139,43 +150,75 @@ module ActiveDataFlow
     end
 
     private
-    
+
+    # Prepares the flow for execution by rehydrating connectors and runtime.
+    #
+    # @return [Dry::Monads::Result] Success(true) or Failure[:deserialization_error, {...}]
     def prepare_run
-      @source = rehydrate_connector(parsed_source)
-      @sink = rehydrate_connector(parsed_sink)
-      @runtime = rehydrate_runtime(parsed_runtime)
+      source_result = rehydrate_connector(parsed_source)
+      sink_result = rehydrate_connector(parsed_sink)
+      runtime_result = rehydrate_runtime(parsed_runtime)
+
+      # Use Do notation to unwrap results
+      @source = yield source_result
+      @sink = yield sink_result
+      @runtime = yield runtime_result
+
+      Success(true)
     end
 
+    # Rehydrates a connector from serialized JSON data.
+    #
+    # @param data [Hash, nil] The serialized connector data
+    # @return [Dry::Monads::Result] Success(connector) or Failure[:deserialization_error, {...}]
     def rehydrate_connector(data)
-      return nil unless data
-      
-      klass_name = data['class_name']
+      unless data
+        return Failure[:deserialization_error, {
+          message: "No connector data provided"
+        }]
+      end
+
+      klass_name = data["class_name"]
       unless klass_name
         Rails.logger.warn "[ActiveDataFlow] Connector class name missing in data: #{data.inspect}"
-        return nil
+        return Failure[:deserialization_error, {
+          message: "Connector class name missing",
+          data: data
+        }]
       end
-      
+
       klass = klass_name.constantize
-      klass.from_json(data)
+      Success(klass.from_json(data))
     rescue NameError => e
       Rails.logger.error "[ActiveDataFlow] Failed to load connector class: #{e.message}"
-      nil
+      Failure[:deserialization_error, {
+        message: e.message,
+        class_name: klass_name,
+        exception_class: e.class.name
+      }]
     end
-    
+
+    # Rehydrates a runtime from serialized JSON data.
+    #
+    # @param data [Hash, nil] The serialized runtime data
+    # @return [Dry::Monads::Result] Success(runtime) - always succeeds with default fallback
     def rehydrate_runtime(data)
-      return ActiveDataFlow::Runtime::Base.new unless data
-      
-      klass_name = data['class_name']
+      unless data
+        return Success(ActiveDataFlow::Runtime::Base.new)
+      end
+
+      klass_name = data["class_name"]
       unless klass_name
         Rails.logger.warn "[ActiveDataFlow] Runtime class name missing in data: #{data.inspect}"
-        return ActiveDataFlow::Runtime::Base.new
+        return Success(ActiveDataFlow::Runtime::Base.new)
       end
-      
+
       klass = klass_name.constantize
-      klass.from_json(data)
+      Success(klass.from_json(data))
     rescue NameError => e
       Rails.logger.error "[ActiveDataFlow] Failed to load runtime class: #{e.message}"
-      ActiveDataFlow::Runtime::Base.new
+      # Runtime failures fall back to base runtime (intentional)
+      Success(ActiveDataFlow::Runtime::Base.new)
     end
 
     # Override in subclasses to customize message ID extraction

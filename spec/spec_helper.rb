@@ -4,6 +4,9 @@ require "bundler/setup"
 require "active_record"
 require "active_data_flow"
 
+# Load support files
+Dir[File.join(__dir__, "support", "**", "*.rb")].each { |f| require f }
+
 # Load ActiveRecord models for testing
 require_relative "../app/models/active_data_flow/active_record/data_flow"
 require_relative "../app/models/active_data_flow/active_record/data_flow_run"

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'jimson'
+require "jimson"
 
 module ActiveDataFlow
   module Connector
@@ -8,6 +8,8 @@ module ActiveDataFlow
       # Wrapper for Jimson::Client with common functionality
       # Provides helper methods for sending data via JSON-RPC
       class ClientWrapper
+        include ActiveDataFlow::Result
+
         attr_reader :url, :client
 
         # Initialize a new JSON-RPC client
@@ -19,53 +21,66 @@ module ActiveDataFlow
         end
 
         # Send a single record via JSON-RPC
+        #
         # @param record [Hash] The record data
-        # @return [Hash] Response from server
+        # @return [Dry::Monads::Result] Success(response) or Failure[:rpc_error, {...}]
         def send_record(record)
-          client.receive_record(record)
+          response = client.receive_record(record)
+          Success(response)
         rescue StandardError => e
-          handle_error(e, record)
+          Failure[:rpc_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            data_size: 1,
+            url: url
+          }]
         end
 
         # Send multiple records via JSON-RPC
+        #
         # @param records [Array<Hash>] Array of record data
-        # @return [Hash] Response from server
+        # @return [Dry::Monads::Result] Success(response) or Failure[:rpc_error, {...}]
         def send_records(records)
-          client.receive_records(records)
+          response = client.receive_records(records)
+          Success(response)
         rescue StandardError => e
-          handle_error(e, records)
+          Failure[:rpc_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            data_size: records.size,
+            url: url
+          }]
         end
 
         # Check server health
-        # @return [Hash] Server health status
+        #
+        # @return [Dry::Monads::Result] Success(response) or Failure[:rpc_error, {...}]
         def health_check
-          client.health
+          response = client.health
+          Success(response)
         rescue StandardError => e
-          { status: 'error', message: e.message }
+          Failure[:rpc_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            url: url
+          }]
         end
 
         # Test connection to server
-        # @return [Boolean] True if connection is successful
+        #
+        # @return [Dry::Monads::Result] Success(true) or Failure[:rpc_error, {...}]
         def test_connection
-          response = health_check
-          response[:status] == 'ok'
-        rescue StandardError
-          false
-        end
-
-        private
-
-        # Handle errors during RPC calls
-        # @param error [StandardError] The error that occurred
-        # @param data [Object] The data that failed to send
-        # @return [Hash] Error response
-        def handle_error(error, data)
-          {
-            status: 'error',
-            message: error.message,
-            error_class: error.class.name,
-            data_size: data.is_a?(Array) ? data.size : 1
-          }
+          health_check.bind do |response|
+            if response[:status] == "ok"
+              Success(true)
+            else
+              Failure[:rpc_error, {
+                message: "Health check returned non-ok status: #{response[:status]}",
+                response: response,
+                url: url
+              }]
+            end
+          end
         end
       end
     end
