@@ -10,6 +10,8 @@ module ActiveDataFlow
       # JSON-RPC Source Connector
       # Receives data via JSON-RPC server and provides it as a source for data flows
       class JsonRpcSource < ::ActiveDataFlow::Connector::Source::Base
+        include ActiveDataFlow::Result
+
         attr_reader :host, :port, :handler
 
         # Initialize a new JSON-RPC source
@@ -36,9 +38,25 @@ module ActiveDataFlow
         end
 
         # Start the JSON-RPC server
-        # @return [Boolean] true if server started successfully
+        #
+        # @return [Dry::Monads::Result] Success(true) or Failure[:server_error, {...}]
         def start_server
-          @server_lifecycle.start
+          if @server_lifecycle.start
+            Success(true)
+          else
+            Failure[:server_error, {
+              message: "Failed to start JSON-RPC server",
+              host: host,
+              port: port
+            }]
+          end
+        rescue StandardError => e
+          Failure[:server_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            host: host,
+            port: port
+          }]
         end
 
         # Stop the JSON-RPC server
@@ -54,11 +72,16 @@ module ActiveDataFlow
         end
 
         # Iterate through received records
+        #
         # @param batch_size [Integer] Number of records to process per batch
         # @param start_id [Integer, nil] Starting ID for cursor-based pagination (not used for JSON-RPC)
         # @yield [record] Each record received via JSON-RPC
+        # @return [Dry::Monads::Result] Success(nil) or Failure[:server_error, {...}]
         def each(batch_size:, start_id: nil, &block)
-          start_server unless running?
+          unless running?
+            result = start_server
+            return result if result.failure?
+          end
 
           loop do
             records = []
@@ -81,6 +104,15 @@ module ActiveDataFlow
             # Break if no records were collected (allows for graceful shutdown)
             break if records.empty? && !running?
           end
+
+          Success(nil)
+        rescue StandardError => e
+          Failure[:server_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            host: host,
+            port: port
+          }]
         end
 
         # Close the source and clean up resources

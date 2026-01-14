@@ -7,6 +7,8 @@ module ActiveDataFlow
   module Connector
     module Source
       class ActiveRecordSource < ::ActiveDataFlow::Connector::Source::Base
+        include ActiveDataFlow::Result
+
         attr_reader :scope_params
 
         def initialize(scope:, scope_params: [])
@@ -39,6 +41,12 @@ module ActiveDataFlow
 
         attr_reader :scope_name
 
+        # Iterate over records from the source
+        #
+        # @param batch_size [Integer] Number of records per batch
+        # @param start_id [Integer, nil] Optional ID to start from (for resuming)
+        # @yield [record] Each record from the source
+        # @return [Dry::Monads::Result] Success(nil) or Failure[:db_error, {...}]
         def each(batch_size:, start_id: nil, &block)
           scope_with_cursor = if start_id
             scope.where("#{model_class.table_name}.id > ?", start_id)
@@ -47,6 +55,14 @@ module ActiveDataFlow
           end
 
           scope_with_cursor.find_each(batch_size: batch_size, &block)
+          Success(nil)
+        rescue StandardError => e
+          Failure[:db_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            model_class: model_class.name,
+            scope_name: scope_name
+          }]
         end
 
         def close

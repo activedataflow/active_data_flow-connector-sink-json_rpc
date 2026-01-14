@@ -7,6 +7,8 @@ module ActiveDataFlow
   module Connector
     module Sink
       class ActiveRecordSink < ::ActiveDataFlow::Connector::Sink::Base
+        include ActiveDataFlow::Result
+
         attr_reader :model_class, :batch_size
 
         def initialize(model_class:, batch_size: 100)
@@ -20,12 +22,38 @@ module ActiveDataFlow
           )
         end
 
+        # Write a single record to the database
+        #
+        # @param record [Hash] The record attributes
+        # @return [Dry::Monads::Result] Success(record) or Failure[:db_error, {...}]
         def write(record)
-          model_class.create!(record)
+          result = model_class.create!(record)
+          Success(result)
+        rescue StandardError => e
+          Failure[:db_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            model_class: model_class.name,
+            record_count: 1
+          }]
         end
 
+        # Write multiple records to the database
+        #
+        # @param records [Array<Hash>] Array of record attributes
+        # @return [Dry::Monads::Result] Success(result) or Failure[:db_error, {...}]
         def write_batch(records)
-          model_class.insert_all!(records) if records.any?
+          return Success(nil) unless records.any?
+
+          result = model_class.insert_all!(records)
+          Success(result)
+        rescue StandardError => e
+          Failure[:db_error, {
+            message: e.message,
+            exception_class: e.class.name,
+            model_class: model_class.name,
+            record_count: records.size
+          }]
         end
 
         def close
