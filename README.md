@@ -125,9 +125,10 @@ This creates `app/data_flows/user_sync_flow.rb` where you can define your data f
 
 ### Creating Data Flows
 
-Data flows are automatically registered when the application starts. Define a class with a `register` method:
+Data flows are automatically registered when the application starts. Define stage classes that inherit from `FunctionalTaskSupervisor::Stage`:
 
 ```ruby
+# Source stage - fetches data using a connector
 class SourceDataStage < FunctionalTaskSupervisor::Stage
   self.instance = ActiveDataFlow::Connector::Source::ActiveRecordSource.new(
     model_class: User,
@@ -136,37 +137,52 @@ class SourceDataStage < FunctionalTaskSupervisor::Stage
   )
 
   def perform_work
-    Success(data: connector.fetch)
+    records = connector.fetch
+    Success(data: records)
   end
 end
 
+# Process stage - transforms data from a shared context
 class ProcessDataStage < FunctionalTaskSupervisor::Stage
+  attr_accessor :records
+
   def perform_work
-    # Transform data from previous stage
-    transformed = input_data.map { |record| record.attributes }
+    transformed = records.map { |record| record.attributes }
     Success(data: transformed)
   end
 end
 
+# Sink stage - writes data using a connector
 class SinkDataStage < FunctionalTaskSupervisor::Stage
   self.instance = ActiveDataFlow::Connector::Sink::ActiveRecordSink.new(
     model_class: UserBackup,
     batch_size: 100
   )
 
+  attr_accessor :records
+
   def perform_work
-    connector.write(input_data)
-    Success(data: { records_written: input_data.size })
+    connector.write(records)
+    Success(data: { records_written: records.size })
   end
 end
 
-# Create and execute task
-task = FunctionalTaskSupervisor::Task.new
-task.add_stage(SourceDataStage.new("source"))
-task.add_stage(ProcessDataStage.new("process"))
-task.add_stage(SinkDataStage.new("sink"))
+# Create stages and wire up data flow
+source = SourceDataStage.new("source")
+process = ProcessDataStage.new("process")
+sink = SinkDataStage.new("sink")
 
-result = task.run
+# Execute stages and pass data between them
+source.execute
+if source.success?
+  process.records = source.value[:data]
+  process.execute
+
+  if process.success?
+    sink.records = process.value[:data]
+    sink.execute
+  end
+end
 ```
 
 ## Architecture
