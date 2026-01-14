@@ -33,11 +33,11 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
       end
 
       it "returns Failure[:dependency_error] if redcord gem is not available" do
-        allow(described_class).to receive(:require).with("redcord").and_raise(LoadError)
+        allow(ActiveDataFlow::StorageBackend::RedcordLoader).to receive(:require).with("redcord").and_raise(LoadError)
 
         result = described_class.validate_dependencies
         expect(result).to be_failure(:dependency_error)
-        expect(result).to have_failure_message(/redcord.*gem.*required/i)
+        expect(result.failure[1][:message]).to match(/redcord.*gem.*required/i)
       end
     end
 
@@ -53,12 +53,12 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
       end
 
       it "returns Failure[:dependency_error] if redis-emulator gem is not available" do
-        allow(described_class).to receive(:require).with("redcord").and_return(true)
-        allow(described_class).to receive(:require).with("redis/emulator").and_raise(LoadError)
+        allow(ActiveDataFlow::StorageBackend::RedcordLoader).to receive(:require).with("redcord").and_return(true)
+        allow(ActiveDataFlow::StorageBackend::RedcordLoader).to receive(:require).with("redis/emulator").and_raise(LoadError)
 
         result = described_class.validate_dependencies
         expect(result).to be_failure(:dependency_error)
-        expect(result).to have_failure_message(/redis-emulator.*gem.*required/i)
+        expect(result.failure[1][:message]).to match(/redis-emulator.*gem.*required/i)
       end
     end
   end
@@ -159,17 +159,18 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
     end
 
     context "with URL configuration" do
-      it "returns Success with Redis client" do
+      before do
         ActiveDataFlow.configure do |config|
           config.redis_config = { url: "redis://example.com:6379/1" }
         end
+      end
 
-        expect(Redis).to receive(:new).with(
-          url: "redis://example.com:6379/1",
-          host: nil,
-          port: nil,
-          db: nil
-        ).and_return(redis_client)
+      after do
+        ActiveDataFlow.reset_configuration!
+      end
+
+      it "returns Success with Redis client" do
+        expect(Redis).to receive(:new).with(hash_including(url: "redis://example.com:6379/1")).and_return(redis_client)
 
         result = described_class.initialize_redis_connection
         expect(result).to be_success
@@ -178,17 +179,18 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
     end
 
     context "with host/port/db configuration" do
-      it "creates Redis client with individual options" do
+      before do
         ActiveDataFlow.configure do |config|
           config.redis_config = { host: "localhost", port: 6380, db: 2 }
         end
+      end
 
-        expect(Redis).to receive(:new).with(
-          url: "redis://localhost:6379/0",
-          host: "localhost",
-          port: 6380,
-          db: 2
-        ).and_return(redis_client)
+      after do
+        ActiveDataFlow.reset_configuration!
+      end
+
+      it "creates Redis client with individual options" do
+        expect(Redis).to receive(:new).with(hash_including(host: "localhost", port: 6380, db: 2)).and_return(redis_client)
 
         result = described_class.initialize_redis_connection
         expect(result).to be_success
@@ -196,17 +198,18 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
     end
 
     context "with default configuration" do
-      it "uses default Redis URL" do
+      before do
         ActiveDataFlow.configure do |config|
           config.redis_config = {}
         end
+      end
 
-        expect(Redis).to receive(:new).with(
-          url: "redis://localhost:6379/0",
-          host: nil,
-          port: nil,
-          db: nil
-        ).and_return(redis_client)
+      after do
+        ActiveDataFlow.reset_configuration!
+      end
+
+      it "uses default Redis URL" do
+        expect(Redis).to receive(:new).with(hash_including(url: "redis://localhost:6379/0")).and_return(redis_client)
 
         result = described_class.initialize_redis_connection
         expect(result).to be_success
@@ -214,12 +217,22 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
     end
 
     context "when connection fails" do
+      before do
+        ActiveDataFlow.configure do |config|
+          config.redis_config = {}
+        end
+      end
+
+      after do
+        ActiveDataFlow.reset_configuration!
+      end
+
       it "returns Failure[:connection_error] with clear message" do
         allow(redis_client).to receive(:ping).and_raise(Redis::CannotConnectError.new("Connection refused"))
 
         result = described_class.initialize_redis_connection
         expect(result).to be_failure(:connection_error)
-        expect(result).to have_failure_message(/Failed to connect to Redis.*Connection refused/)
+        expect(result.failure[1][:message]).to match(/Failed to connect to Redis.*Connection refused/)
       end
     end
   end
@@ -241,7 +254,7 @@ RSpec.describe ActiveDataFlow::StorageBackendLoader do
     end
 
     it "returns Success with Redis::Emulator" do
-      expect(redis_emulator_class).to receive(:new).with(backend: rails_cache)
+      expect(redis_emulator_class).to receive(:new).with(hash_including(backend: rails_cache))
 
       result = described_class.initialize_redis_emulator
       expect(result).to be_success

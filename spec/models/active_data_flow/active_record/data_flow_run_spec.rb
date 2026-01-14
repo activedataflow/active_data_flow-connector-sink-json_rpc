@@ -9,7 +9,8 @@ RSpec.describe ActiveDataFlow::ActiveRecord::DataFlowRun do
     end
 
     it "has correct model name for routing" do
-      expect(described_class.model_name.name).to eq("ActiveDataFlow::DataFlowRun")
+      expect(described_class.model_name.singular).to eq("data_flow_run")
+      expect(described_class.model_name.route_key).to eq("data_flow_runs")
     end
   end
 

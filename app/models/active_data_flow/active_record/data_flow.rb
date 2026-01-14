@@ -9,7 +9,12 @@ module ActiveDataFlow
       include GlobalID::Identification
 
       self.table_name = "active_data_flow_data_flows"
-      
+
+      # Serialize JSON columns
+      serialize :source, coder: JSON
+      serialize :sink, coder: JSON
+      serialize :runtime, coder: JSON
+
       # Associations
       has_many :data_flow_runs, dependent: :destroy, class_name: "ActiveDataFlow::ActiveRecord::DataFlowRun", foreign_key: :data_flow_id
       
